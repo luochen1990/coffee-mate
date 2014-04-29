@@ -32,15 +32,22 @@ float = (s) -> if /^-?[0-9]*(\.[0-9]+)?([eE]-?[0-9]+)?$/.test(s) then parseFloat
 str = (x) -> x + ''
 json = (it) -> JSON.stringify(it)
 obj = (s) -> JSON.parse(s)
+chr = (x) -> String.fromCharCode(x)
+ord = (c) -> c.charCodeAt()
+hex = (x) -> x.toString(16)
 
-###################### reinforce dictionary ######################
+####################### reinforce String #########################
 
-extend = (base, defaults) ->
-	r = if defaults? then dict([k, v] for k, v of defaults) else {}
-	r[k] = v for k, v of base if base?
+String::format = (args) ->
+	this.replace /\{(\w+)\}/g, (m, i) -> if args[i]? then args[i] else m
+
+String::repeat = (n) ->
+	[r, pat] = ['', this]
+	while n > 0
+		r += pat if n & 1
+		n >>= 1
+		pat += pat
 	r
-
-size = (obj) -> Object.keys(obj).length
 
 ######################## reinforce array #########################
 
@@ -68,15 +75,14 @@ any = (arr, f) ->
 	return true for x in arr when f(x)
 	false
 
-####################### reinforce String #########################
+###################### reinforce dictionary ######################
 
-String::format = (args) ->
-	this.replace /\{(\w+)\}/g, (m, i) -> if args[i]? then args[i] else m
-
-String::repeat = (n) ->
-	r = ''
-	r += this for i in [0...n]
+extend = (base, defaults) ->
+	r = if defaults? then dict([k, v] for k, v of defaults) else {}
+	r[k] = v for k, v of base if base?
 	r
+
+size = (obj) -> Object.keys(obj).length
 
 ######################### url helpers ############################
 
@@ -85,9 +91,9 @@ url_encode = (obj) ->
 
 ###################### simple pseudo-random ######################
 
-random_gen = (seed = 0) ->
+random_gen = (seed = Math.random()) ->
 	->
-		x = Math.sin(seed++) * 10000
+		x = Math.sin(++seed) * 10000
 		x - Math.floor(x)
 
 ranged_random_gen = (range, seed = 0) ->
@@ -112,6 +118,9 @@ module.exports =
 	str: str
 	json: json
 	obj: obj
+	chr: chr
+	ord: ord
+	hex: hex
 
 	extend: extend
 	size: size
