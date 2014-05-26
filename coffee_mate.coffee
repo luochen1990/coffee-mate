@@ -8,8 +8,8 @@ log = do ->
 		ball = []
 		for f in args
 			if typeof f == 'function'
-				expr = f.toString().replace(/\s*function\s*\(\s*\)\s*{\s*return\s*([^]*);\s*}/, '$1')
-				expr = expr.replace /[\r\n]{1,2}\s*/g, '' if expr.length <= 100
+				expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1')
+				expr = expr.replace(/[\r\n]{1,2}\s*/g, '') if expr.length <= 100
 				ball.push("## #{expr} ==>", f())
 			else
 				ball.push('##', f)
@@ -50,6 +50,14 @@ String::repeat = (n) ->
 	r
 
 ######################## reinforce array #########################
+
+Object.defineProperties Array.prototype,
+    first:
+        get: -> this[0]
+        set: (v) -> this[0] = v
+    last:
+        get: -> this[@length - 1]
+        set: (v) -> this[@length - 1] = v
 
 reversed = (arr) ->
 	arr.slice().reverse()
@@ -93,7 +101,7 @@ url_encode = (obj) ->
 
 random_gen = (seed = Math.random()) ->
 	->
-		x = Math.sin(++seed) * 10000
+		x = Math.sin(++seed) * 1e4
 		x - Math.floor(x)
 
 ranged_random_gen = (range, seed = 0) ->
@@ -139,3 +147,4 @@ module.exports =
 
 	square: square
 	cube: cube
+
