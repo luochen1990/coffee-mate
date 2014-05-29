@@ -62,10 +62,6 @@ Object.defineProperties Array.prototype,
 reversed = (arr) ->
 	arr.slice().reverse()
 
-zip = (a, b) ->
-	len = Math.min(a.length, b.length)
-	([a[i], b[i]] for i in [0...len])
-
 ###################### reinforce Dictionary ######################
 
 extend = (base, defaults) ->
@@ -111,6 +107,10 @@ best = (better) ->
 		rext = null
 		(rext = if(not rext? or better(it, rext)) then it else rext) for it in ls
 		rext
+
+zip = (arrs...) ->
+	len = Infinity; len = a.length for a in arrs when a.length < len
+	((arrs[j][i] for j in [0...arrs.length]) for i in [0...len])
 
 cart = (sets...) -> #cartesian_product; recover the lack of double level list comprehensions
 	rst = []
@@ -181,7 +181,6 @@ module.exports =
 	obj: obj
 
 	reversed: reversed
-	zip: zip
 
 	extend: extend
 	size: size
@@ -195,6 +194,7 @@ module.exports =
 	all: all
 	any: any
 	best: best
+	zip: zip
 	cart: cart
 	church: church
 	memorize: memorize
