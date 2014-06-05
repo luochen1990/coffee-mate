@@ -8,8 +8,8 @@ api list
 
 ### reinforce syntax
 
-- `log`: can be used as a convinent log macro
-- `dict`: can be used to construct an dict convinently just like dict comprehension
+- `log`: can be used as a convenient log macro
+- `dict`: can be used to construct an dict conveniently just like dict comprehension
 - `sleep`: sleep syntactic sugar, second is used instead of millisecond
 
 ### type trans
