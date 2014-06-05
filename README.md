@@ -64,11 +64,11 @@ api list
 
 - `square`: given x, return x * x
 - `cube`: given x, return x * x * x
-- `sum`: given an iterator, return their sum
-- `max`: given an iterator, return the greatest one
-- `min`: given an iterator, return the smallest one
-- `max_index`: given an iterator, return the index of the greatest one
-- `min_index`: given an iterator, return the index of the smallest one
+- `sum`: given an array of numbers, return their sum
+- `max`: given an array of numbers, return the greatest one
+- `min`: given an array of numbers, return the smallest one
+- `max_index`: given an array of numbers, return the index of the greatest one
+- `min_index`: given an array of numbers, return the index of the smallest one
 
 useage
 ------
