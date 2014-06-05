@@ -1,7 +1,7 @@
 coffee-mate
 ===========
 
-mate util functions for coffeescript, includes log macro, dict comprehension,  pseudo-random, and so on
+Having CoffeeScript for **Functional Programming** is cool, and it will be much better with this **coffee-mate**, which provides a lot of util functions for js and some of them are especially for coffeescript, includes **log macro**, **dict comprehension**, function `cart` for **nested list comprehensions**, **pseudo-random**, **type transformation** , **string formating** and **a sort of high-order helper functions for functional programming**.
 
 api list
 --------
@@ -51,12 +51,13 @@ api list
 ### logical functions
 
 - `accumulate`: given an initial value, an iterator and a function, return an final value
+- `best`: given a function describing which one is better, return a function describing which one is best
 - `all`: given an iterator and a function, return true only if for every item in the iterator, the function returns true
 - `any`: given an iterator and a function, return true if for any item in the iterator, the function returns true
-- `best`: given a function describing which one is better, return a function describing which one is best
 - `zip`: given a sort of iterators, return a zipped one
 - `cart`: given a sort of iterators, return their cartesian product
 - `church`: given an integer, return a church number
+- `Y`: the Y Combinator, given a high-order function, return it's fixed point which is also a function
 - `memorize`: given a function, return it's memorized version
 
 ### mathematical functions

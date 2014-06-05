@@ -94,25 +94,25 @@ accumulate = (fruit, nutri, foo) ->
 	fruit = foo(fruit, it) for it in nutri
 	fruit
 
-all = (arr, f) ->
-	return false for x in arr when not f(x)
+best = (better) ->
+	(iter) ->
+		rext = null
+		(rext = if(not rext? or better(it, rext)) then it else rext) for it in iter
+		rext
+
+all = (iter, f=(x)->(x)) ->
+	return false for x in iter when not f(x)
 	true
 
-any = (arr, f) ->
-	return true for x in arr when f(x)
+any = (iter, f=(x)->(x)) ->
+	return true for x in iter when f(x)
 	false
-
-best = (better) ->
-	(ls) ->
-		rext = null
-		(rext = if(not rext? or better(it, rext)) then it else rext) for it in ls
-		rext
 
 zip = (arrs...) ->
 	len = Infinity; len = a.length for a in arrs when a.length < len
 	((arrs[j][i] for j in [0...arrs.length]) for i in [0...len])
 
-cart = (sets...) -> #cartesian_product; recover the lack of double level list comprehensions
+cart = (sets...) -> #cartesian_product; recover the lack of nested list comprehensions
 	rst = []
 	len = sets.length
 	rec = (st, d) ->
@@ -129,6 +129,9 @@ church = (n) -> #the nth church number
 
 	(f) ->
 		(x) -> iter(f, n + 0, x)
+
+Y = (f) ->
+	((x) -> (x x)) ((x) -> (f ((y) -> ((x x) y))))
 
 memorize = (f) ->
 	cache = {}
@@ -191,12 +194,13 @@ module.exports =
 	ranged_random_gen: ranged_random_gen
 
 	accumulate: accumulate
+	best: best
 	all: all
 	any: any
-	best: best
 	zip: zip
 	cart: cart
 	church: church
+	Y: Y
 	memorize: memorize
 
 	square: square
