@@ -73,7 +73,15 @@ api list
 useage
 ------
 
+#### require in nodejs
+
 see the file `test.coffee` for example.
+
+#### reference in html directly
+
+```html
+<script src="https://rawgit.com/luochen1990/coffee-mate/master/coffee_mate.js" type="text/javascript"></script>
+```
 
 run demo
 --------
