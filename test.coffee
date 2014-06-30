@@ -35,7 +35,7 @@ log -> 'hello, beauty! '.repeat(3)
 ls = [0..100]
 log -> sum(ls)
 log -> ls2
-log -> all(ls, (n) -> 'a'.repeat(n).length == n)
+log -> all((n) -> 'a'.repeat(n).length == n)(ls)
 
 ls2 = (chr(ord('a')+i) for i in [0...3])
 log -> zip(ls, ls2)

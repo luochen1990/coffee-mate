@@ -52,8 +52,8 @@ api list
 
 - `accumulate`: given an initial value, an iterator and a function, return an final value
 - `best`: given a function describing which one is better, return a function describing which one is best
-- `all`: given an iterator and a function, return true only if for every item in the iterator, the function returns true
-- `any`: given an iterator and a function, return true if for any item in the iterator, the function returns true
+- `all`: given a judge function, return a function deals with an iterator, which returns true only if for every item in the iterator, the judge function returns true
+- `any`: given a judge function, return a function deals with an iterator, which returns true if for any item in the iterator, the judge function returns true
 - `zip`: given a sort of iterators, return a zipped one
 - `cart`: given a sort of iterators, return their cartesian product
 - `church`: given an integer, return a church number

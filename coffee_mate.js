@@ -218,46 +218,66 @@ accumulate = function(fruit, nutri, foo) {
 
 best = function(better) {
   return function(iter) {
-    var it, rext, _i, _len;
-    rext = null;
+    var it, r, _i, _len;
+    r = null;
     for (_i = 0, _len = iter.length; _i < _len; _i++) {
       it = iter[_i];
-      rext = (rext == null) || better(it, rext) ? it : rext;
+      r = r === null || better(it, r) ? it : r;
     }
-    return rext;
+    return r;
   };
 };
 
-all = function(iter, f) {
-  var x, _i, _len;
-  if (f == null) {
-    f = function(x) {
-      return x;
+all = function(f) {
+  if (typeof f === 'function') {
+    return function(iter) {
+      var x, _i, _len;
+      for (_i = 0, _len = iter.length; _i < _len; _i++) {
+        x = iter[_i];
+        if (!f(x)) {
+          return false;
+        }
+      }
+      return true;
+    };
+  } else {
+    return function(iter) {
+      var x, _i, _len;
+      for (_i = 0, _len = iter.length; _i < _len; _i++) {
+        x = iter[_i];
+        if (x !== f) {
+          return false;
+        }
+      }
+      return true;
     };
   }
-  for (_i = 0, _len = iter.length; _i < _len; _i++) {
-    x = iter[_i];
-    if (!f(x)) {
-      return false;
-    }
-  }
-  return true;
 };
 
-any = function(iter, f) {
-  var x, _i, _len;
-  if (f == null) {
-    f = function(x) {
-      return x;
+any = function(f) {
+  if (typeof f === 'function') {
+    return function(iter) {
+      var x, _i, _len;
+      for (_i = 0, _len = iter.length; _i < _len; _i++) {
+        x = iter[_i];
+        if (f(x)) {
+          return true;
+        }
+      }
+      return false;
+    };
+  } else {
+    return function(iter) {
+      var x, _i, _len;
+      for (_i = 0, _len = iter.length; _i < _len; _i++) {
+        x = iter[_i];
+        if (x === f) {
+          return true;
+        }
+      }
+      return false;
     };
   }
-  for (_i = 0, _len = iter.length; _i < _len; _i++) {
-    x = iter[_i];
-    if (f(x)) {
-      return true;
-    }
-  }
-  return false;
 };
 
 zip = function() {

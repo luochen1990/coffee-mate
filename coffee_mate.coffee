@@ -98,17 +98,29 @@ accumulate = (fruit, nutri, foo) ->
 
 best = (better) ->
 	(iter) ->
-		rext = null
-		(rext = if(not rext? or better(it, rext)) then it else rext) for it in iter
-		rext
+		r = null
+		(r = if(r == null or better(it, r)) then it else r) for it in iter
+		r
 
-all = (iter, f=(x)->(x)) ->
-	return false for x in iter when not f(x)
-	true
+all = (f) ->
+	if typeof(f) == 'function'
+		(iter) ->
+			return false for x in iter when not f(x)
+			true
+	else
+		(iter) ->
+			return false for x in iter when x != f
+			true
 
-any = (iter, f=(x)->(x)) ->
-	return true for x in iter when f(x)
-	false
+any = (f) ->
+	if typeof(f) == 'function'
+		(iter) ->
+			return true for x in iter when f(x)
+			false
+	else
+		(iter) ->
+			return true for x in iter when x == f
+			false
 
 zip = (arrs...) ->
 	len = Infinity; len = a.length for a in arrs when a.length < len
