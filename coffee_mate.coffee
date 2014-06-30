@@ -191,6 +191,7 @@ if module?
 
 		int: int
 		float: float
+		bool: bool
 		str: str
 		hex: hex
 		ord: ord

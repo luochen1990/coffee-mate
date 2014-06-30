@@ -73,14 +73,16 @@ api list
 useage
 ------
 
-#### require in nodejs
+#### install & require in nodejs
 
-see the file `test.coffee` for example.
+- install with npm: `npm install coffee-mate`
+- require separately: `{log, dict, sleep} = require 'coffee-mate'`
+- require globally: `require 'coffee-mate/global'`
 
 #### reference in html directly
 
 ```html
-<script src="https://rawgit.com/luochen1990/coffee-mate/master/coffee_mate.js" type="text/javascript"></script>
+<script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/coffee_mate.js" type="text/javascript"></script>
 ```
 
 run demo

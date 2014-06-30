@@ -430,6 +430,7 @@ if (typeof module !== "undefined" && module !== null) {
     dict: dict,
     int: int,
     float: float,
+    bool: bool,
     str: str,
     hex: hex,
     ord: ord,
