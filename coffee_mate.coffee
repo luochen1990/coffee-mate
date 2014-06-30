@@ -30,10 +30,11 @@ dict = (pairs) -> #constract object from list of pairs; recover the lack of dict
 int = (s, base) -> r = parseInt(s, base); unless s.slice? and r == parseInt(s.slice(0,-1), base) then r else null
 float = (s) -> if /^-?[0-9]*(\.[0-9]+)?([eE]-?[0-9]+)?$/.test(s) then parseFloat(s) else null
 str = (x, base) -> x.toString(base)
+bool = (x) -> if x == true or x == false then x else null
 hex = (x) -> x.toString(16)
 ord = (c) -> c.charCodeAt()
 chr = (x) -> String.fromCharCode(x)
-json = (it) -> JSON.stringify(it)
+json = (it, indent) -> JSON.stringify(it, null, indent)
 obj = (s) -> JSON.parse(s)
 
 ####################### reinforce String #########################
@@ -64,9 +65,10 @@ reversed = (arr) ->
 
 ###################### reinforce Dictionary ######################
 
-extend = (base, defaults) ->
-	r = if defaults? then dict([k, v] for k, v of defaults) else {}
-	r[k] = v for k, v of base if base?
+extend = (base, defaults...) ->
+	r = if base? then dict([k, v] for k, v of base) else {}
+	for d in defaults
+		r[k] ?= v for k, v of d if d? # null value will be replaced if a default value exists.
 	r
 
 size = (obj) -> Object.keys(obj).length
