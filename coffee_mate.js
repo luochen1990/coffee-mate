@@ -119,6 +119,19 @@ String.prototype.repeat = function(n) {
   return r;
 };
 
+String.prototype.cut = function(start_pat, end_pat) {
+  var i, j;
+  i = this.search(start_pat) + 1;
+  if (i === 0) {
+    return null;
+  }
+  j = this.substr(i).search(end_pat);
+  if (j === -1) {
+    return null;
+  }
+  return this.substr(i, j);
+};
+
 Object.defineProperties(Array.prototype, {
   first: {
     get: function() {
