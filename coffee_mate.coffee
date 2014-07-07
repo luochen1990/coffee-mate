@@ -80,17 +80,42 @@ url_encode = (obj) ->
 
 ###################### simple pseudo-random ######################
 
-random_gen = (seed = Math.random()) ->
-	->
-		x = Math.sin(++seed) * 1e4
+random_gen = do ->
+	hash = (x) ->
+		x = Math.sin(x) * 1e4
 		x - Math.floor(x)
+	(seed = Math.random()) ->
+		cnt = hash(seed)
+		-> hash(++cnt)
 
-ranged_random_gen = (range, seed = 0) ->
+ranged_random_gen = (range, seed = Math.random()) ->
 	random = random_gen(seed)
-	->
-		Math.floor(random() * range)
+	-> Math.floor(random() * range)
 
 ######################## logic functions #########################
+
+iterator = do ->
+	end = new Object
+	ret = (iterable) ->
+		return iterable if typeof(iterable) is 'function'
+		i = -1
+		->
+			i += 1
+			if i < iterable.length
+				iterable[i]
+			else
+				end
+	ret.end = end
+	ret
+
+array = (iterable) ->
+	return iterable if typeof(iterable) isnt 'function'
+	r = []
+	x = iterable()
+	while x isnt iterator.end
+		r.push(x)
+		x = iterable()
+	r
 
 accumulate = (fruit, nutri, foo) ->
 	fruit = foo(fruit, it) for it in nutri
@@ -98,29 +123,28 @@ accumulate = (fruit, nutri, foo) ->
 
 best = (better) ->
 	(iter) ->
-		r = null
-		(r = if(r == null or better(it, r)) then it else r) for it in iter
+		iter = (iterator iter) if typeof(iter) isnt 'function'
+		r = iter()
+		return null if r is iterator.end
+		it = iter()
+		while it isnt iterator.end
+			r = if better(it, r) then it else r
+			it = iter()
 		r
 
 all = (f) ->
-	if typeof(f) == 'function'
-		(iter) ->
-			return false for x in iter when not f(x)
-			true
-	else
-		(iter) ->
-			return false for x in iter when x != f
-			true
+	f = ((x) -> x == f) if typeof(f) isnt 'function'
+	(iter) ->
+		iter = (iterator iter) if typeof(iter) isnt 'function'
+		x = iter()
+		while x isnt iterator.end
+			return false if not f(x)
+			x = iter()
+		true
 
 any = (f) ->
-	if typeof(f) == 'function'
-		(iter) ->
-			return true for x in iter when f(x)
-			false
-	else
-		(iter) ->
-			return true for x in iter when x == f
-			false
+	(iter) ->
+		not (all((x) -> not f(x)) iter)
 
 zip = (arrs...) ->
 	len = Infinity; len = a.length for a in arrs when a.length < len
@@ -208,6 +232,8 @@ if module?
 		random_gen: random_gen
 		ranged_random_gen: ranged_random_gen
 
+		iterator: iterator
+		array: array
 		accumulate: accumulate
 		best: best
 		all: all
