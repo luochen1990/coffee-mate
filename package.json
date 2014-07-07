@@ -1,0 +1,23 @@
+{
+  "name": "coffee-mate",
+  "version": "0.1.0",
+  "description": "library for functional programming via coffeescript, lightweight & convenient",
+  "author": "luochen1990",
+  "license": "BSD",
+  "homepage": "http://github.com/luochen1990/coffee-mate",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:luochen1990/coffee-mate.git"
+  },
+  "keywords": [
+    "functional programming",
+    "underscore",
+    "coffeescript",
+    "log macro",
+    "dict comprehension",
+    "sleep",
+    "random"
+  ],
+  "main": "./coffee_mate.js",
+  "dependencies": {}
+}

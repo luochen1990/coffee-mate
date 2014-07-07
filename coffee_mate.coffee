@@ -50,6 +50,13 @@ String::repeat = (n) ->
 		pat += pat
 	r
 
+String::cut = (start_pat, end_pat) ->
+    i = @.search(start_pat) + 1
+    return null if i == 0
+    j = @.substr(i).search(end_pat)
+    return null if j == -1
+    @.substr(i, j)
+
 ######################## reinforce Array #########################
 
 Object.defineProperties Array.prototype,
@@ -215,6 +222,7 @@ if module?
 
 		int: int
 		float: float
+		bool: bool
 		str: str
 		hex: hex
 		ord: ord
