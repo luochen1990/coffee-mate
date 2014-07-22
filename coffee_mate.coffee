@@ -51,21 +51,21 @@ String::repeat = (n) ->
 	r
 
 String::cut = (start_pat, end_pat) ->
-    i = @.search(start_pat) + 1
-    return null if i == 0
-    j = @.substr(i).search(end_pat)
-    return null if j == -1
-    @.substr(i, j)
+	i = @.search(start_pat) + 1
+	return null if i == 0
+	j = @.substr(i).search(end_pat)
+	return null if j == -1
+	@.substr(i, j)
 
 ######################## reinforce Array #########################
 
 Object.defineProperties Array.prototype,
-    first:
-        get: -> this[0]
-        set: (v) -> this[0] = v
-    last:
-        get: -> this[@length - 1]
-        set: (v) -> this[@length - 1] = v
+	first:
+		get: -> this[0]
+		set: (v) -> this[0] = v
+	last:
+		get: -> this[@length - 1]
+		set: (v) -> this[@length - 1] = v
 
 reversed = (arr) ->
 	arr.slice().reverse()
@@ -85,6 +85,13 @@ size = (obj) -> Object.keys(obj).length
 url_encode = (obj) ->
 	("#{encodeURIComponent(k)}=#{encodeURIComponent(v)}" for k, v of obj).join('&')
 
+url_decode = (url) ->
+	d = {}
+	for s in url.match /[^?=&]+=[^&]*/g
+		[..., k, v] = s.match /([^=]+)=(.*)/
+		d[decodeURIComponent(k)] = decodeURIComponent(v)
+	d
+
 ###################### simple pseudo-random ######################
 
 random_gen = do ->
@@ -103,19 +110,24 @@ ranged_random_gen = (range, seed = Math.random()) ->
 
 iterator = do ->
 	end = new Object
-	ret = (iterable) ->
+	ret = (iterable, replaced_end) ->
 		return iterable if typeof(iterable) is 'function'
 		i = -1
 		->
 			i += 1
 			if i < iterable.length
-				iterable[i]
+				if iterable[i] is iterator.end
+					if not replaced_end?
+						throw 'ITERATOR.END SHOULD NOT APPEARS IN LIST, PASS A SECOND ARG FOR REPLACE'
+					replaced_end
+				else
+					iterable[i]
 			else
 				end
 	ret.end = end
 	ret
 
-array = (iterable) ->
+list = (iterable) ->
 	return iterable if typeof(iterable) isnt 'function'
 	r = []
 	x = iterable()
@@ -124,13 +136,23 @@ array = (iterable) ->
 		x = iterable()
 	r
 
+head = (n) -> (iter) ->
+	iter = iterator(iter)
+	c = 0
+	->
+		if c < n
+			c += 1
+			iter()
+		else
+			iterator.end
+
 accumulate = (fruit, nutri, foo) ->
 	fruit = foo(fruit, it) for it in nutri
 	fruit
 
 best = (better) ->
 	(iter) ->
-		iter = (iterator iter) if typeof(iter) isnt 'function'
+		iter = iterator(iter)
 		r = iter()
 		return null if r is iterator.end
 		it = iter()
@@ -140,9 +162,9 @@ best = (better) ->
 		r
 
 all = (f) ->
-	f = ((x) -> x == f) if typeof(f) isnt 'function'
+	f = ((x) -> x is f) if typeof(f) isnt 'function'
 	(iter) ->
-		iter = (iterator iter) if typeof(iter) isnt 'function'
+		iter = iterator(iter)
 		x = iter()
 		while x isnt iterator.end
 			return false if not f(x)
@@ -150,14 +172,25 @@ all = (f) ->
 		true
 
 any = (f) ->
+	all_not = all (x) -> not f(x)
 	(iter) ->
-		not (all((x) -> not f(x)) iter)
+		not (all_not iter)
 
-zip = (arrs...) ->
-	len = Infinity; len = a.length for a in arrs when a.length < len
-	((arrs[j][i] for j in [0...arrs.length]) for i in [0...len])
+zip = (iters...) ->
+	iters = (iterator(iter) for iter in iters)
+	finished = do ->
+		end = new Object
+		any_is_end = any (x) -> x is end
+		(ls) -> any_is_end iterator(ls, end)
+	->
+		next = (iter() for iter in iters)
+		if finished(next)
+			return iterator.end
+		else
+			return next
 
 cart = (sets...) -> #cartesian_product; recover the lack of nested list comprehensions
+	sets = (list(set) for set in sets)
 	rst = []
 	len = sets.length
 	rec = (st, d) ->
@@ -236,12 +269,14 @@ if module?
 		size: size
 
 		url_encode: url_encode
+		url_decode: url_decode
 
 		random_gen: random_gen
 		ranged_random_gen: ranged_random_gen
 
 		iterator: iterator
-		array: array
+		list: list
+		head: head
 		accumulate: accumulate
 		best: best
 		all: all
