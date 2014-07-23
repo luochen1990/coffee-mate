@@ -82,14 +82,14 @@ size = (obj) -> Object.keys(obj).length
 
 ######################### url helpers ############################
 
-url_encode = (obj) ->
-	("#{encodeURIComponent(k)}=#{encodeURIComponent(v)}" for k, v of obj).join('&')
+url_encode = (obj, packer = ((o) -> str(o))) ->
+	("#{encodeURIComponent(k)}=#{encodeURIComponent packer v}" for k, v of obj).join('&')
 
-url_decode = (url) ->
+url_decode = (url, unpacker = ((s) -> s)) ->
 	d = {}
 	for s in url.match /[^?=&]+=[^&]*/g
 		[..., k, v] = s.match /([^=]+)=(.*)/
-		d[decodeURIComponent(k)] = decodeURIComponent(v)
+		d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
 	d
 
 ###################### simple pseudo-random ######################
