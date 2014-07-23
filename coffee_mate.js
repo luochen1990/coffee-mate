@@ -207,17 +207,17 @@ uri_encode = function(obj, packer) {
 };
 
 uri_decode = function(uri, unpacker) {
-  var d, k, s, v, _i, _j, _len, _ref, _ref1;
+  var d, k, s, v, _i, _j, _len, _ref, _ref1, _ref2;
   if (unpacker == null) {
     unpacker = (function(s) {
       return s;
     });
   }
   d = {};
-  _ref = uri.match(/[^?=&]+=[^&]*/g != null ? /[^?=&]+=[^&]*/g : []);
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    s = _ref[_i];
-    _ref1 = s.match(/([^=]+)=(.*)/), _j = _ref1.length - 2, k = _ref1[_j++], v = _ref1[_j++];
+  _ref1 = (_ref = uri.match(/[^?=&]+=[^&]*/g)) != null ? _ref : [];
+  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+    s = _ref1[_i];
+    _ref2 = s.match(/([^=]+)=(.*)/), _j = _ref2.length - 2, k = _ref2[_j++], v = _ref2[_j++];
     d[decodeURIComponent(k)] = unpacker(decodeURIComponent(v));
   }
   return d;
@@ -578,3 +578,5 @@ if (typeof module !== "undefined" && module !== null) {
     min_index: min_index
   };
 }
+
+//# sourceMappingURL=coffee_mate.map

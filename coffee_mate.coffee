@@ -88,7 +88,7 @@ uri_encode = (obj, packer = ((o) -> str(o))) ->
 
 uri_decode = (uri, unpacker = ((s) -> s)) ->
 	d = {}
-	for s in (uri.match /[^?=&]+=[^&]*/g ? [])
+	for s in (uri.match /[^?=&]+=[^&]*/g) ? []
 		[..., k, v] = s.match /([^=]+)=(.*)/
 		d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
 	d
