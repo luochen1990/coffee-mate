@@ -49,8 +49,8 @@ log -> extend(d, 0: 0, 1: 'known')
 
 ######################### url helpers ############################
 
-log -> url_encode(d)
-log -> url_decode(url_encode(d))
+log -> uri_encode(d)
+log -> uri_decode(uri_encode(d))
 
 ###################### simple pseudo-random ######################
 

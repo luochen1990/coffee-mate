@@ -41,7 +41,7 @@ api list
 
 ### url helpers
 
-- `url_encode`: given an object and return a url_encoded string which will be appended after a url as params
+- `uri_encode`: given an object and return a url_encoded string which will be appended after a url as params
 
 ### simple pseudo-random
 

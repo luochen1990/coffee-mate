@@ -82,12 +82,13 @@ size = (obj) -> Object.keys(obj).length
 
 ######################### url helpers ############################
 
-url_encode = (obj, packer = ((o) -> str(o))) ->
+uri_encode = (obj, packer = ((o) -> str(o))) ->
+	return '' if obj is null
 	("#{encodeURIComponent(k)}=#{encodeURIComponent packer v}" for k, v of obj).join('&')
 
-url_decode = (url, unpacker = ((s) -> s)) ->
+uri_decode = (uri, unpacker = ((s) -> s)) ->
 	d = {}
-	for s in url.match /[^?=&]+=[^&]*/g
+	for s in (uri.match /[^?=&]+=[^&]*/g ? [])
 		[..., k, v] = s.match /([^=]+)=(.*)/
 		d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
 	d
@@ -268,8 +269,8 @@ if module?
 		extend: extend
 		size: size
 
-		url_encode: url_encode
-		url_decode: url_decode
+		uri_encode: uri_encode
+		uri_decode: uri_decode
 
 		random_gen: random_gen
 		ranged_random_gen: ranged_random_gen
