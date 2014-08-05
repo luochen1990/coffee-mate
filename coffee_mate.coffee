@@ -25,6 +25,18 @@ dict = (pairs) -> #constract object from list of pairs; recover the lack of dict
 	d[k] = v for [k, v] in pairs
 	d
 
+{copy, deepcopy} = do ->
+	cp = (root, dep) ->
+		return root if dep == 0 or typeof(root) != 'object'
+		if root instanceof Array
+			r = (cp(v, dep-1) for v in root)
+		else
+			r = {}
+			r[k] = cp(v, dep-1) for k, v of root
+		r
+	copy: (obj, depth=1) -> cp(obj, depth)
+	deepcopy: (obj, depth=-1) -> cp(obj, depth)
+
 ######################### type trans #############################
 
 int = (s, base) -> r = parseInt(s, base); unless s.slice? and r == parseInt(s.slice(0,-1), base) then r else null
@@ -73,10 +85,10 @@ reversed = (arr) ->
 ###################### reinforce Dictionary ######################
 
 extend = (base, defaults...) ->
-	r = if base? then dict([k, v] for k, v of base) else {}
+	r = base ? {} #NOTE: to avoid modifying base inplace: `extend(copy(base), default)` or `extend({}, base, default)`
 	for d in defaults
-		r[k] ?= v for k, v of d if d? # null value will be replaced if a default value exists.
-	r
+		r[k] ?= v for k, v of d if d? #NOTE: null value will be replaced if a default value exists.
+	r #NOTE: you should always use `a = extend(a, b)` instead of `extend(a, b)` since when a is null extend won't be inplace
 
 size = (obj) -> Object.keys(obj).length
 
@@ -253,6 +265,8 @@ if module?
 		log: log
 		sleep: sleep
 		dict: dict
+		copy: copy
+		deepcopy: deepcopy
 
 		int: int
 		float: float

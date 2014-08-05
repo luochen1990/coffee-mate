@@ -1,6 +1,6 @@
 {
   "name": "coffee-mate",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "library for functional programming via coffeescript, lightweight & convenient",
   "author": "luochen1990",
   "license": "BSD",

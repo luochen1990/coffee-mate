@@ -45,7 +45,7 @@ log -> list head(4)(cart(ls, ls2))
 
 log -> d
 log -> size(d)
-log -> extend(d, 0: 0, 1: 'known')
+log -> extend({}, d, 0: 0, 1: 'known')
 
 ######################### url helpers ############################
 
@@ -61,4 +61,20 @@ random = random_gen(0)
 
 log -> square(2)
 log -> cube(2)
+
+######################## copy & deepcopy #########################
+
+a = {x:1,y:2, z:[1, 2]}
+b = copy(a)
+b.x = 2
+b.z[0] = 2
+log -> json a
+log -> json b
+
+a = {x:1,y:2, z:[1, 2]}
+b = deepcopy(a)
+b.x = 2
+b.z[0] = 2
+log -> json a
+log -> json b
 
