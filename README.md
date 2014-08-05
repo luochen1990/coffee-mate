@@ -11,6 +11,8 @@ api list
 - `log`: can be used as a convenient log macro
 - `dict`: can be used to construct an dict conveniently just like dict comprehension
 - `sleep`: sleep syntactic sugar, second is used instead of millisecond
+- `copy`: return a copy of an Array or Object, the second argument indicates the depth of copying
+- `deepcopy`: almost same as copy, but the default depth is Infinity
 
 ### type trans
 

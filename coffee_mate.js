@@ -81,7 +81,7 @@ _ref = (function() {
     },
     deepcopy: function(obj, depth) {
       if (depth == null) {
-        depth = -1;
+        depth = Infinity;
       }
       return cp(obj, depth);
     }

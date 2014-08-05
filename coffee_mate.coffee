@@ -35,7 +35,7 @@ dict = (pairs) -> #constract object from list of pairs; recover the lack of dict
 			r[k] = cp(v, dep-1) for k, v of root
 		r
 	copy: (obj, depth=1) -> cp(obj, depth)
-	deepcopy: (obj, depth=-1) -> cp(obj, depth)
+	deepcopy: (obj, depth=Infinity) -> cp(obj, depth)
 
 ######################### type trans #############################
 
