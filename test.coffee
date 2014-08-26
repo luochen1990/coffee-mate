@@ -41,6 +41,8 @@ log -> ls2
 log -> list(zip(ls, ls2))
 log -> list head(4)(cart(ls, ls2))
 
+log -> copy([1, 2, 6, 6, 2, 5, 2, 3, 5]).sort().unique()
+
 ###################### reinforce dictionary ######################
 
 log -> d
