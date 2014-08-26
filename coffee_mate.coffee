@@ -80,15 +80,18 @@ do ->
 		last:
 			get: -> @[@length - 1]
 			set: (v) -> @[@length - 1] = v
-
-	Array::unique = ->
-		i = 0
-		t = new Object
-		for x, j in @ when x != t
-			@[i] = t = x
-			i += 1
-		@.splice(i, Infinity)
-		return @
+		unique:
+			writable: false
+			configurable: false
+			enumerable: false
+			value: ->
+				i = 0
+				t = new Object
+				for x, j in @ when x != t
+					@[i] = t = x
+					i += 1
+				@.splice(i, Infinity)
+				return @
 
 ###################### reinforce Dictionary ######################
 

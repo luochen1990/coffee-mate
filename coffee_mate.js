@@ -175,23 +175,28 @@ var __slice = [].slice;
       set: function(v) {
         return this[this.length - 1] = v;
       }
+    },
+    unique: {
+      writable: false,
+      configurable: false,
+      enumerable: false,
+      value: function() {
+        var i, j, t, x, _i, _len;
+        i = 0;
+        t = new Object;
+        for (j = _i = 0, _len = this.length; _i < _len; j = ++_i) {
+          x = this[j];
+          if (!(x !== t)) {
+            continue;
+          }
+          this[i] = t = x;
+          i += 1;
+        }
+        this.splice(i, Infinity);
+        return this;
+      }
     }
   });
-  Array.prototype.unique = function() {
-    var i, j, t, x, _i, _len;
-    i = 0;
-    t = new Object;
-    for (j = _i = 0, _len = this.length; _i < _len; j = ++_i) {
-      x = this[j];
-      if (!(x !== t)) {
-        continue;
-      }
-      this[i] = t = x;
-      i += 1;
-    }
-    this.splice(i, Infinity);
-    return this;
-  };
   extend = function() {
     var base, d, defaults, k, r, v, _i, _len;
     base = arguments[0], defaults = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
