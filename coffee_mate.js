@@ -2,7 +2,7 @@
 var __slice = [].slice;
 
 (function() {
-  var Y, accumulate, all, any, best, bool, cart, chr, church, copy, cube, deepcopy, dict, extend, float, head, hex, int, iterator, json, list, log, max, max_index, memorize, min, min_index, obj, ord, random_gen, ranged_random_gen, size, sleep, square, str, sum, uri_decode, uri_encode, zip, _ref;
+  var Y, accumulate, all, any, apply_vector, best, bool, cart, chr, church, copy, cube, deepcopy, desc_vector, dict, extend, float, head, hex, inc_vector, int, iterator, json, list, log, max, max_index, memorize, min, min_index, obj, ord, random_gen, ranged_random_gen, size, sleep, square, str, sum, uri_decode, uri_encode, zip, _ref;
   log = (function() {
     var foo, logs;
     logs = [];
@@ -87,11 +87,15 @@ var __slice = [].slice;
   })(), copy = _ref.copy, deepcopy = _ref.deepcopy;
   int = function(s, base) {
     var r;
-    r = parseInt(s, base);
-    if (!((s.slice != null) && r === parseInt(s.slice(0, -1), base))) {
-      return r;
+    if (typeof s === 'string') {
+      r = parseInt(s, base);
+      if (!((s.slice != null) && r === parseInt(s.slice(0, -1), base))) {
+        return r;
+      } else {
+        return null;
+      }
     } else {
-      return null;
+      return parseInt(0 + s);
     }
   };
   float = function(s) {
@@ -428,36 +432,82 @@ var __slice = [].slice;
       }
     };
   };
+  inc_vector = function(limits) {
+    var len_minus_1;
+    len_minus_1 = limits.length - 1;
+    return function(vec) {
+      var i;
+      i = len_minus_1;
+      while (!(++vec[i] < limits[i] || i <= 0)) {
+        vec[i--] = 0;
+      }
+      return vec;
+    };
+  };
+  desc_vector = function(limits) {
+    var len_minus_1;
+    len_minus_1 = limits.length - 1;
+    return function(vec) {
+      var i;
+      i = len_minus_1;
+      while (!(--vec[i] >= 0 || i <= 0)) {
+        vec[i] = limits[i--] - 1;
+      }
+      return vec;
+    };
+  };
+  apply_vector = function(space) {
+    var len;
+    len = space.length;
+    return function(vec) {
+      var i, _i, _results;
+      _results = [];
+      for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
+        _results.push(space[i][vec[i]]);
+      }
+      return _results;
+    };
+  };
   cart = function() {
-    var len, rec, rst, set, sets;
-    sets = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    var get_value, i, inc, iters, limits, set, sets, v;
+    iters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
     sets = (function() {
       var _i, _len, _results;
       _results = [];
-      for (_i = 0, _len = sets.length; _i < _len; _i++) {
-        set = sets[_i];
+      for (_i = 0, _len = iters.length; _i < _len; _i++) {
+        set = iters[_i];
         _results.push(list(set));
       }
       return _results;
     })();
-    rst = [];
-    len = sets.length;
-    rec = function(st, d) {
-      var x, _i, _len, _ref1, _results;
-      if (d === len) {
-        return rst.push(st);
+    limits = (function() {
+      var _i, _ref1, _results;
+      _results = [];
+      for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        _results.push(sets[i].length);
+      }
+      return _results;
+    })();
+    inc = inc_vector(limits);
+    get_value = apply_vector(sets);
+    v = (function() {
+      var _i, _ref1, _results;
+      _results = [];
+      for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        _results.push(0);
+      }
+      return _results;
+    })();
+    return function() {
+      var r;
+      if (v[0] < limits[0]) {
+        r = get_value(v);
+        inc(v);
+        return r;
       } else {
-        _ref1 = sets[d];
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          x = _ref1[_i];
-          _results.push(rec(st.concat([x]), d + 1));
-        }
-        return _results;
+        return iterator.end;
       }
     };
-    rec([], 0);
-    return rst;
   };
   church = function(n) {
     var iter;
@@ -545,7 +595,7 @@ var __slice = [].slice;
       return _results;
     }).apply(this));
   };
-  return extend(typeof window !== "undefined" && window !== null ? window : module.exports, {
+  extend(typeof window !== "undefined" && window !== null ? window : module.exports, {
     log: log,
     sleep: sleep,
     dict: dict,
@@ -585,6 +635,9 @@ var __slice = [].slice;
     min: min,
     max_index: max_index,
     min_index: min_index
+  });
+  return log(function() {
+    return json(list(cart([1, 2, 3], ['a', 'b'], ['x', 'y'])));
   });
 })();
 

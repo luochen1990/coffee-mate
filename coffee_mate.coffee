@@ -41,10 +41,17 @@ do ->
 
 ######################### type trans #############################
 
-	int = (s, base) -> r = parseInt(s, base); unless s.slice? and r == parseInt(s.slice(0,-1), base) then r else null
+	int = (s, base) -> if typeof(s) == 'string' then (r = parseInt(s, base); unless s.slice? and r == parseInt(s.slice(0,-1), base) then r else null) else parseInt(0 + s)
+#	int('2') ==> 2
+#	int('2.34') ==> null
+#	int('2.34.56') ==> null
+#	int(2) ==> 2
+#	int(2.34) ==> 2
+#	int(true) ==> 1
+#	int(false) ==> 0
 	float = (s) -> if /^-?[0-9]*(\.[0-9]+)?([eE]-?[0-9]+)?$/.test(s) then parseFloat(s) else null
 	str = (x, base) -> x.toString(base)
-	bool = (x) -> if x == true or x == false then x else null
+	bool = (x) -> if x in [true, false] then x else null
 	hex = (x) -> x.toString(16)
 	ord = (c) -> c.charCodeAt()
 	chr = (x) -> String.fromCharCode(x)
@@ -213,17 +220,45 @@ do ->
 			else
 				return next
 
-	cart = (sets...) -> #cartesian_product; recover the lack of nested list comprehensions
-		sets = (list(set) for set in sets)
-		rst = []
-		len = sets.length
-		rec = (st, d) ->
-			if d == len
-				rst.push(st)
-			else
-				rec(st.concat([x]), d + 1) for x in sets[d]
-		rec([], 0)
-		return rst
+	inc_vector = (limits) ->
+		len_minus_1 = limits.length - 1
+		(vec) ->
+			i = len_minus_1
+			vec[i--] = 0 until ++vec[i] < limits[i] or i <= 0
+			vec
+
+	desc_vector = (limits) ->
+		len_minus_1 = limits.length - 1
+		(vec) ->
+			i = len_minus_1
+			vec[i] = limits[i--] - 1 until --vec[i] >= 0 or i <= 0
+			vec
+ 
+	apply_vector = (space) ->
+		len = space.length
+		(vec) ->
+			(space[i][vec[i]] for i in [0...len])
+
+	cart = (iters...) ->
+		sets = (list(set) for set in iters)
+		limits = (sets[i].length for i in [0...sets.length])
+		inc = inc_vector(limits)
+		get_value = apply_vector(sets)
+		v = (0 for i in [0...sets.length])
+		->
+			if v[0] < limits[0] then (r = get_value v; inc v; r) else iterator.end
+
+	#cart = (sets...) -> #cartesian_product; recover the lack of nested list comprehensions
+	#	sets = (list(set) for set in sets)
+	#	rst = []
+	#	len = sets.length
+	#	rec = (st, d) ->
+	#		if d == len
+	#			rst.push(st)
+	#		else
+	#			rec(st.concat([x]), d + 1) for x in sets[d]
+	#	rec([], 0)
+	#	return rst
 
 	church = (n) -> #the nth church number
 		iter = (f, n, r) ->
@@ -317,4 +352,6 @@ do ->
 		min: min
 		max_index: max_index
 		min_index: min_index
+
+	log -> json list cart [1, 2, 3], ['a', 'b'], ['x', 'y']
 
