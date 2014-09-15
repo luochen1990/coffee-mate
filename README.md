@@ -52,15 +52,20 @@ api list
 
 ### logical functions
 
-- `accumulate`: given an initial value, an iterator and a function, return an final value
+- `iterator`: given an array, return it's iterator form, an iterator will pass through directly.
+- `iterator.end`: the symbol of iterating ending. if `iterating.end` is returned, the iterating is finished.
+- `list`: given an iterator, return an array, an array will pass through directly.
+- `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yeild by the iterator, finally return the result value(which should be modified by the callback directly).
+- `enumerate`: given an iterator, array or object, return an iterator which yields `[key, value]` pairs.
+- `head`: given a nature number `n`, return a function which accepts an iterator `iter` and returns an iterator which yields the first `n` item from `iter`.
 - `best`: given a function describing which one is better, return a function describing which one is best
 - `all`: given a judge function, return a function deals with an iterator, which returns true only if for every item in the iterator, the judge function returns true
 - `any`: given a judge function, return a function deals with an iterator, which returns true if for any item in the iterator, the judge function returns true
-- `zip`: given a sort of iterators, return a zipped one
-- `cart`: given a sort of iterators, return their cartesian product
-- `church`: given an integer, return a church number
-- `Y`: the Y Combinator, given a high-order function, return it's fixed point which is also a function
-- `memorize`: given a function, return it's memorized version
+- `zip`: given a sort of iterators, return a zipped one which is also an iterator.
+- `cart`: given a sort of iterators, return their cartesian product which is also an iterator.
+- `church`: given a nature number `n`, return the church number `n`.
+- `Y`: the Y Combinator, given a high-order function, return it's fixed point which is also a function.
+- `memorize`: given a function, return it's memorized version.
 
 ### mathematical functions
 
@@ -85,6 +90,7 @@ useage
 
 ```html
 <script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/coffee_mate.js" type="text/javascript"></script>
+<script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/global.js" type="text/javascript"></script>
 ```
 
 run demo

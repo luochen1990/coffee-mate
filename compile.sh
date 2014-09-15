@@ -1,1 +1,1 @@
-coffee -cbm coffee_mate.coffee
+coffee -cm coffee_mate.coffee

@@ -1,3 +1,2 @@
-var api = require('./coffee_mate.js');
-for (var name in api)
-	global[name] = api[name];
+if(typeof window === 'undefined'){var coffee_mate = require('./coffee_mate.js');}
+coffee_mate.extend(((typeof window !== 'undefined' && window !== null) ? window : global), coffee_mate);

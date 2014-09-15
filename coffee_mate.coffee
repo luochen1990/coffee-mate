@@ -1,10 +1,9 @@
-do ->
+coffee_mate = do ->
 
 ###################### reinforce syntax ##########################
 
 	log = do ->
 		logs = []
-		window.logs = logs if window? # window env used, for debugging easier in broswer console.
 		foo = (args...) ->
 			op = if args.slice(-1)[0] in ['log', 'warn', 'error'] then args.pop() else 'log'
 			ball = []
@@ -139,17 +138,20 @@ do ->
 
 ######################## logic functions #########################
 
+	nature_number_gen = -> i = -1; (-> ++i)
+
 	iterator = do ->
 		end = new Object
 		ret = (iterable, replaced_end) ->
 			return iterable if typeof(iterable) is 'function'
+			throw 'ERR IN iterator(): ONLY Array & Iterator IS ACCEPTABLE' if not iterable instanceof Array
 			i = -1
 			->
 				i += 1
 				if i < iterable.length
 					if iterable[i] is iterator.end
 						if not replaced_end?
-							throw 'ITERATOR.END SHOULD NOT APPEARS IN LIST, PASS A SECOND ARG FOR REPLACE'
+							throw 'ERR IN iterator(): iterator.end APPEARS IN LIST, PASS A SECOND ARG FOR REPLACEMENT'
 						replaced_end
 					else
 						iterable[i]
@@ -177,9 +179,15 @@ do ->
 			else
 				iterator.end
 
-	accumulate = (fruit, nutri, foo) ->
-		fruit = foo(fruit, it) for it in nutri
-		return fruit
+	foreach = do ->
+		brk = new Object
+		ret = (iterable, callback, fruit) ->
+			iter = iterator(iterable)
+			while (x = iter()) isnt iterator.end
+				break if callback(x, fruit) is brk
+			fruit
+		ret.break = brk
+		return ret
 
 	best = (better) ->
 		(iter) ->
@@ -219,6 +227,16 @@ do ->
 				return iterator.end
 			else
 				return next
+
+	enumerate = (iterable, replaced_end) ->
+		iterable = iterator(iterable) if iterable instanceof Array
+		if typeof(iterable) is 'function'
+			return zip(nature_number_gen(), iterable)
+		else
+			keys = Object.keys(iterable)
+			i = -1
+			->
+				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iterator.end
 
 	inc_vector = (limits) ->
 		len_minus_1 = limits.length - 1
@@ -305,8 +323,7 @@ do ->
 		best((i, j) -> arr[i] < arr[j]) [0...arr.length]
 
 ########################### exports ##############################
-
-	extend (window ? module.exports),
+	return {
 		log: log
 		sleep: sleep
 		dict: dict
@@ -334,8 +351,9 @@ do ->
 
 		iterator: iterator
 		list: list
+		foreach: foreach
+		enumerate: enumerate
 		head: head
-		accumulate: accumulate
 		best: best
 		all: all
 		any: any
@@ -352,6 +370,10 @@ do ->
 		min: min
 		max_index: max_index
 		min_index: min_index
+	}
 
-	log -> json list cart [1, 2, 3], ['a', 'b'], ['x', 'y']
-
+if window?
+	window.coffee_mate = coffee_mate
+	window._ ?= coffee_mate
+else
+	module.exports = coffee_mate
