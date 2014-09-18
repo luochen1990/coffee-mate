@@ -138,7 +138,32 @@ coffee_mate = do ->
 
 ######################## logic functions #########################
 
-	nature_number_gen = -> i = -1; (-> ++i)
+	nature_number = (min = 0) -> i = min-1; (-> ++i)
+
+	range = (args...) ->
+		if args.length == 0
+			i = -1
+			(-> ++i)
+		else if args.length == 1
+			[stop] = args
+			i = -1
+			(-> if ++i < stop then i else iterator.end)
+		else if args.length == 2
+			[start, stop] = args
+			if start < stop
+				i = start - 1
+				(-> if ++i < stop then i else iterator.end)
+			else
+				i = start + 1
+				(-> if --i > stop then i else iterator.end)
+		else
+			[start, stop, step] = args
+			throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE' if stop != start and (stop - start) * step < 0
+			i = start - step
+			if start < stop
+				(-> if (i += step) < stop then i else iterator.end)
+			else
+				(-> if (i += step) > stop then i else iterator.end)
 
 	iterator = do ->
 		end = new Object
@@ -231,7 +256,7 @@ coffee_mate = do ->
 	enumerate = (iterable, replaced_end) ->
 		iterable = iterator(iterable) if iterable instanceof Array
 		if typeof(iterable) is 'function'
-			return zip(nature_number_gen(), iterable)
+			return zip((-> i = -1; (-> ++i))(), iterable)
 		else
 			keys = Object.keys(iterable)
 			i = -1
@@ -288,10 +313,10 @@ coffee_mate = do ->
 	Y = (f) ->
 		((x) -> (x x)) ((x) -> (f ((y) -> ((x x) y))))
 
-	memorize = (f) ->
+	memorize = (f, get_key = ((args...) -> json(args))) ->
 		cache = {}
 		(args...) ->
-			key = json(args)
+			key = get_key(args...)
 			cached = cache[key]
 			if cached?
 				cached
@@ -353,6 +378,8 @@ coffee_mate = do ->
 		list: list
 		foreach: foreach
 		enumerate: enumerate
+		nature_number: nature_number
+		range: range
 		head: head
 		best: best
 		all: all

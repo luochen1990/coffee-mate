@@ -4,7 +4,7 @@
     __slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, all, any, apply_vector, best, bool, cart, chr, church, copy, cube, deepcopy, desc_vector, dict, enumerate, extend, float, foreach, head, hex, inc_vector, int, iterator, json, list, log, max, max_index, memorize, min, min_index, nature_number_gen, obj, ord, random_gen, ranged_random_gen, size, sleep, square, str, sum, uri_decode, uri_encode, zip, _ref;
+    var Y, all, any, apply_vector, best, bool, cart, chr, church, copy, cube, deepcopy, desc_vector, dict, enumerate, extend, float, foreach, head, hex, inc_vector, int, iterator, json, list, log, max, max_index, memorize, min, min_index, nature_number, obj, ord, random_gen, range, ranged_random_gen, size, sleep, square, str, sum, uri_decode, uri_encode, zip, _ref;
     log = (function() {
       var foo, logs;
       logs = [];
@@ -283,12 +283,79 @@
         return Math.floor(random() * range);
       };
     };
-    nature_number_gen = function() {
+    nature_number = function(min) {
       var i;
-      i = -1;
+      if (min == null) {
+        min = 0;
+      }
+      i = min - 1;
       return function() {
         return ++i;
       };
+    };
+    range = function() {
+      var args, i, start, step, stop;
+      args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      if (args.length === 0) {
+        i = -1;
+        return function() {
+          return ++i;
+        };
+      } else if (args.length === 1) {
+        stop = args[0];
+        i = -1;
+        return function() {
+          if (++i < stop) {
+            return i;
+          } else {
+            return iterator.end;
+          }
+        };
+      } else if (args.length === 2) {
+        start = args[0], stop = args[1];
+        if (start < stop) {
+          i = start - 1;
+          return function() {
+            if (++i < stop) {
+              return i;
+            } else {
+              return iterator.end;
+            }
+          };
+        } else {
+          i = start + 1;
+          return function() {
+            if (--i > stop) {
+              return i;
+            } else {
+              return iterator.end;
+            }
+          };
+        }
+      } else {
+        start = args[0], stop = args[1], step = args[2];
+        if (stop !== start && (stop - start) * step < 0) {
+          throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE';
+        }
+        i = start - step;
+        if (start < stop) {
+          return function() {
+            if ((i += step) < stop) {
+              return i;
+            } else {
+              return iterator.end;
+            }
+          };
+        } else {
+          return function() {
+            if ((i += step) > stop) {
+              return i;
+            } else {
+              return iterator.end;
+            }
+          };
+        }
+      }
     };
     iterator = (function() {
       var end, ret;
@@ -455,7 +522,13 @@
         iterable = iterator(iterable);
       }
       if (typeof iterable === 'function') {
-        return zip(nature_number_gen(), iterable);
+        return zip((function() {
+          var i;
+          i = -1;
+          return function() {
+            return ++i;
+          };
+        })(), iterable);
       } else {
         keys = Object.keys(iterable);
         i = -1;
@@ -570,13 +643,20 @@
         }));
       }));
     };
-    memorize = function(f) {
+    memorize = function(f, get_key) {
       var cache;
+      if (get_key == null) {
+        get_key = (function() {
+          var args;
+          args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          return json(args);
+        });
+      }
       cache = {};
       return function() {
         var args, cached, key, r;
         args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-        key = json(args);
+        key = get_key.apply(null, args);
         cached = cache[key];
         if (cached != null) {
           return cached;
@@ -657,6 +737,8 @@
       list: list,
       foreach: foreach,
       enumerate: enumerate,
+      nature_number: nature_number,
+      range: range,
       head: head,
       best: best,
       all: all,

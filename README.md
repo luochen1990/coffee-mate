@@ -56,7 +56,9 @@ api list
 - `iterator.end`: the symbol of iterating ending. if `iterating.end` is returned, the iterating is finished.
 - `list`: given an iterator, return an array, an array will pass through directly.
 - `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yeild by the iterator, finally return the result value(which should be modified by the callback directly).
-- `enumerate`: given an iterator, array or object, return an iterator which yields `[key, value]` pairs.
+- `enumerate`: given an iterator, array or object, returns an iterator which yields `[key, value]` pairs.
+- `nature_number`: given an optional first element, returns an unlimitted increasing integer iterator.
+- `range`: 0~3 arguments is allowed, just like the python function range(), returns a limitted integer iterator.
 - `head`: given a nature number `n`, return a function which accepts an iterator `iter` and returns an iterator which yields the first `n` item from `iter`.
 - `best`: given a function describing which one is better, return a function describing which one is best
 - `all`: given a judge function, return a function deals with an iterator, which returns true only if for every item in the iterator, the judge function returns true
