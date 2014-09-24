@@ -3,7 +3,7 @@ coffee-mate
 
 Having CoffeeScript for **Functional Programming** is cool, and it will be much better with this **coffee-mate**, which provides a lot of util functions for js and some of them are especially for coffeescript, includes **log macro**, **dict comprehension**, function `cart` for **nested list comprehensions**, **pseudo-random**, **type transformation** , **string formating** and **a sort of high-order helper functions for functional programming**.
 
-api list
+API List
 --------
 
 ### reinforce syntax
@@ -29,33 +29,34 @@ api list
 
 - `some_string.format`: given an dictionary, return a formated string
 - `some_string.repeat`: given a integer, return a repeated version
+- `some_string.uri_decode`: decode uri to get a dictionary of the params from url
 
 ### reinforce Array
 
 - `some_array.first`: this is an attribute of an array, means the first element in it
+- `some_array.second`: this is an attribute of an array, means the second element in it
+- `some_array.third`: this is an attribute of an array, means the third element in it
 - `some_array.last`: this is an attribute of an array, means the last element in it
-- `reversed`: return a reversed version of an array
 
-### reinforce dictionary
+### reinforce Object
 
-- `extend`: return a extended version of an dictionary(object), values of the second dictionary will be treated as defaults
-- `size`: return the keys number of an dictionary(object), that's just a shotcut for `Object.keys(obj).length`
-
-### url helpers
-
-- `uri_encode`: given an object and return a url_encoded string which will be appended after a url as params
+- `some_object.size`: return the keys number of an dictionary(object), that's just a shotcut for `Object.keys(obj).length`
+- `some_object.extend`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as defaults
+- `some_object.update`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as updates
+- `some_object.uri_encode`: encode a dictionary to get an uri which will be appended after a url as params
 
 ### simple pseudo-random
 
 - `random_gen`: given a seed, return a random generator which generate an decimal in range `[0, 1)` each time
 - `ranged_random_gen`: given an integer `n` and a seed, return a random generator which generate an integer in range `[0, n-1]`
 
-### logical functions
+### logical functions (lazy evaluation)
 
 - `iterator`: given an array, return it's iterator form, an iterator will pass through directly.
 - `iterator.end`: the symbol of iterating ending. if `iterating.end` is returned, the iterating is finished.
 - `list`: given an iterator, return an array, an array will pass through directly.
 - `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yeild by the iterator, finally return the result value(which should be modified by the callback directly).
+- `foreach.break`: the symbol of foreach breaking. if `foreach.break` is returned, the foreach loop is finished.
 - `enumerate`: given an iterator, array or object, returns an iterator which yields `[key, value]` pairs.
 - `nature_number`: given an optional first element, returns an unlimitted increasing integer iterator.
 - `range`: 0~3 arguments is allowed, just like the python function range(), returns a limitted integer iterator.
@@ -73,13 +74,16 @@ api list
 
 - `square`: given x, return x * x
 - `cube`: given x, return x * x * x
+- `abs`: alias of Math.abs
+- `floor`: alias of Math.floor
+- `ceil`: alias of Math.ceil
 - `sum`: given an array of numbers, return their sum
 - `max`: given an array of numbers, return the greatest one
 - `min`: given an array of numbers, return the smallest one
 - `max_index`: given an array of numbers, return the index of the greatest one
 - `min_index`: given an array of numbers, return the index of the smallest one
 
-useage
+Useage
 ------
 
 #### install & require in nodejs
@@ -95,8 +99,8 @@ useage
 <script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/global.js" type="text/javascript"></script>
 ```
 
-run demo
+Run Demo
 --------
 
-run `coffee ./test.coffee` directly if you have `coffee-script` installed.
+run `coffee ./test.coffee` under directory `coffee-mate/` directly after you have `coffee-script` installed.
 

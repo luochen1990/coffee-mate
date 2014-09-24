@@ -3,9 +3,8 @@ coffee_mate = do ->
 ###################### reinforce syntax ##########################
 
 	log = do ->
-		logs = []
-		foo = (args...) ->
-			op = if args.slice(-1)[0] in ['log', 'warn', 'error'] then args.pop() else 'log'
+		histories = []
+		foo = (op) -> (args...) ->
 			ball = []
 			for f in args
 				if typeof f == 'function'
@@ -15,16 +14,21 @@ coffee_mate = do ->
 				else
 					ball.push('##', f)
 			console[op] ball...
-			logs.push(ball)
-		foo.logs = logs
-		foo
+			histories.push(ball)
+			histories.splice(0, 1) if histories.length >= 10
+		ret = foo('log')
+		ret.histories = histories
+		ret.info = foo('info')
+		ret.warn = foo('warn')
+		ret.error = ret.err = foo('error')
+		return ret
 
 	sleep = (seconds, callback) -> setTimeout(callback, seconds * 1000)
 
 	dict = (pairs) -> #constract object from list of pairs; recover the lack of dict comprehensions
 		d = {}
 		d[k] = v for [k, v] in pairs
-		d
+		return d
 
 	{copy, deepcopy} = do ->
 		cp = (root, dep) ->
@@ -34,20 +38,13 @@ coffee_mate = do ->
 			else
 				r = {}
 				r[k] = cp(v, dep-1) for k, v of root
-			r
+			return r
 		copy: (obj, depth=1) -> cp(obj, depth)
 		deepcopy: (obj, depth=Infinity) -> cp(obj, depth)
 
 ######################### type trans #############################
 
 	int = (s, base) -> if typeof(s) == 'string' then (r = parseInt(s, base); unless s.slice? and r == parseInt(s.slice(0,-1), base) then r else null) else parseInt(0 + s)
-#	int('2') ==> 2
-#	int('2.34') ==> null
-#	int('2.34.56') ==> null
-#	int(2) ==> 2
-#	int(2.34) ==> 2
-#	int(true) ==> 1
-#	int(false) ==> 0
 	float = (s) -> if /^-?[0-9]*(\.[0-9]+)?([eE]-?[0-9]+)?$/.test(s) then parseFloat(s) else null
 	str = (x, base) -> x.toString(base)
 	bool = (x) -> if x in [true, false] then x else null
@@ -59,23 +56,36 @@ coffee_mate = do ->
 
 ####################### reinforce String #########################
 
-	String::format = (args) ->
-		@.replace /\{(\w+)\}/g, (m, i) -> if args[i]? then args[i] else m
-
-	String::repeat = (n) ->
-		[r, pat] = ['', @]
-		while n > 0
-			r += pat if n & 1
-			n >>= 1
-			pat += pat
-		return r
-
-	String::cut = (start_pat, end_pat) ->
-		i = @.search(start_pat) + 1
-		return null if i == 0
-		j = @.substr(i).search(end_pat)
-		return null if j == -1
-		@.substr(i, j)
+	Object.defineProperties String.prototype,
+		format:
+			enumerable: false
+			value: (args) ->
+				@.replace /\{(\w+)\}/g, (m, i) -> if args[i]? then args[i] else m
+		repeat:
+			enumerable: false
+			value: (n) ->
+				[r, pat] = ['', @]
+				while n > 0
+					r += pat if n & 1
+					n >>= 1
+					pat += pat
+				return r
+		cut:
+			enumerable: false
+			value: (start_pat, end_pat) ->
+				i = @.search(start_pat) + 1
+				return null if i == 0
+				j = @.substr(i).search(end_pat)
+				return null if j == -1
+				@.substr(i, j)
+		uri_decode:
+			enumerable: false
+			value: (unpacker = ((s) -> s)) ->
+				d = {}
+				for s in (@match /[^?=&]+=[^&]*/g) ? []
+					[..., k, v] = s.match /([^=]+)=(.*)/
+					d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
+				return d
 
 ######################## reinforce Array #########################
 
@@ -83,44 +93,63 @@ coffee_mate = do ->
 		first:
 			get: -> @[0]
 			set: (v) -> @[0] = v
+		second:
+			get: -> @[1]
+			set: (v) -> @[1] = v
+		third:
+			get: -> @[2]
+			set: (v) -> @[2] = v
 		last:
 			get: -> @[@length - 1]
 			set: (v) -> @[@length - 1] = v
-		unique:
-			writable: false
-			configurable: false
+		repeat:
 			enumerable: false
-			value: ->
-				i = 0
-				t = new Object
-				for x, j in @ when x != t
-					@[i] = t = x
-					i += 1
-				@.splice(i, Infinity)
+			value: (n) ->
+				[r, pat] = [[], @]
+				while n > 0
+					r = r.concat(pat) if n & 1
+					n >>= 1
+					pat = pat.concat(pat)
+				return r
+		unique:
+			enumerable: false
+			value: do ->
+				init = new Object
+				(equal)->
+					i = 0
+					t = init
+					if not equal?
+						for x, j in @ when x != t
+							@[i] = t = x
+							i += 1
+					else
+						for x, j in @ when t is init or not equal(x, t)
+							@[i] = t = x
+							i += 1
+					@splice(i, Infinity)
+					return @
+
+####################### reinforce Object #########################
+
+	Object.defineProperties Object.prototype,
+		size:
+			get: -> Object.keys(@).length
+		extend:
+			enumerable: false
+			value: (defaults...) -> #NOTE: modified inplace, use copy() to protect it.
+				for d in defaults when d?
+					@[k] ?= v for k, v of d #NOTE: null values will be replaced if a default value exists.
 				return @
-
-###################### reinforce Dictionary ######################
-
-	extend = (base, defaults...) ->
-		r = base ? {} #NOTE: to avoid modifying base inplace: `extend(copy(base), default)` or `extend({}, base, default)`
-		for d in defaults
-			r[k] ?= v for k, v of d if d? #NOTE: null value will be replaced if a default value exists.
-		return r #NOTE: you should always use `a = extend(a, b)` instead of `extend(a, b)` since when a is null extend won't be inplace
-
-	size = (obj) -> Object.keys(obj).length
-
-######################### url helpers ############################
-
-	uri_encode = (obj, packer = ((o) -> str(o))) ->
-		return '' if obj is null
-		("#{encodeURIComponent(k)}=#{encodeURIComponent packer v}" for k, v of obj).join('&')
-
-	uri_decode = (uri, unpacker = ((s) -> s)) ->
-		d = {}
-		for s in (uri.match /[^?=&]+=[^&]*/g) ? []
-			[..., k, v] = s.match /([^=]+)=(.*)/
-			d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
-		return d
+		update:
+			enumerable: false
+			value: (updates...) ->
+				for d in updates when d?
+					@[k] = v for k, v of d
+				return @
+		uri_encode:
+			enumerable: false
+			value: (packer = str) ->
+				("#{encodeURIComponent(k)}=#{encodeURIComponent packer v}" for k, v of @).join('&')
 
 ###################### simple pseudo-random ######################
 
@@ -138,7 +167,10 @@ coffee_mate = do ->
 
 ######################## logic functions #########################
 
-	nature_number = (min = 0) -> i = min-1; (-> ++i)
+	iter_end = new Object #can be used outside the lib via iterator.end
+	iter_brk = new Object #can be used outside the lib via foreach.break
+
+	nature_number = (first = 0) -> i = first-1; (-> ++i)
 
 	range = (args...) ->
 		if args.length == 0
@@ -147,109 +179,112 @@ coffee_mate = do ->
 		else if args.length == 1
 			[stop] = args
 			i = -1
-			(-> if ++i < stop then i else iterator.end)
+			(-> if ++i < stop then i else iter_end)
 		else if args.length == 2
 			[start, stop] = args
 			if start < stop
 				i = start - 1
-				(-> if ++i < stop then i else iterator.end)
+				(-> if ++i < stop then i else iter_end)
 			else
 				i = start + 1
-				(-> if --i > stop then i else iterator.end)
+				(-> if --i > stop then i else iter_end)
 		else
 			[start, stop, step] = args
 			throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE' if stop != start and (stop - start) * step < 0
 			i = start - step
 			if start < stop
-				(-> if (i += step) < stop then i else iterator.end)
+				(-> if (i += step) < stop then i else iter_end)
 			else
-				(-> if (i += step) > stop then i else iterator.end)
+				(-> if (i += step) > stop then i else iter_end)
 
-	iterator = do ->
-		end = new Object
-		ret = (iterable, replaced_end) ->
-			return iterable if typeof(iterable) is 'function'
-			throw 'ERR IN iterator(): ONLY Array & Iterator IS ACCEPTABLE' if not iterable instanceof Array
-			i = -1
-			->
-				i += 1
-				if i < iterable.length
-					if iterable[i] is iterator.end
-						if not replaced_end?
-							throw 'ERR IN iterator(): iterator.end APPEARS IN LIST, PASS A SECOND ARG FOR REPLACEMENT'
-						replaced_end
-					else
-						iterable[i]
+	iterator = (iterable, replaced_end) ->
+		return iterable if typeof(iterable) is 'function'
+		throw 'ERR IN iterator(): ONLY Array & Iterator IS ACCEPTABLE' if not iterable instanceof Array
+		i = -1
+		->
+			i += 1
+			if i < iterable.length
+				if iterable[i] is iter_end
+					if not replaced_end?
+						throw 'ERR IN iterator(): iterator.end APPEARS IN LIST, PASS A SECOND ARG FOR REPLACEMENT'
+					replaced_end
 				else
-					end
-		ret.end = end
-		ret
+					iterable[i]
+			else
+				iter_end
+
+	Object.defineProperties iterator,
+		end:
+			writable: false
+			configurable: false
+			enumerable: false
+			value: iter_end
 
 	list = (iterable) ->
 		return iterable if typeof(iterable) isnt 'function'
-		r = []
-		x = iterable()
-		while x isnt iterator.end
-			r.push(x)
-			x = iterable()
-		return r
+		(x while (x = iterable()) isnt iter_end)
 
 	head = (n) -> (iter) ->
 		iter = iterator(iter)
-		c = 0
-		->
-			if c < n
-				c += 1
-				iter()
-			else
-				iterator.end
+		c = -1
+		-> if ++c < n then iter() else iter_end
 
-	foreach = do ->
-		brk = new Object
-		ret = (iterable, callback, fruit) ->
-			iter = iterator(iterable)
-			while (x = iter()) isnt iterator.end
-				break if callback(x, fruit) is brk
-			fruit
-		ret.break = brk
-		return ret
+	tail = (n) -> (iter) ->
+		iter = iterator(iter)
+		finished = false
+		(finished or= (iter() is iter_end); break if finished) for i in [0...n]
+		if finished then (-> iter_end) else iter
+
+	foreach = (iterable, callback, fruit) ->
+		iter = iterator(iterable)
+		while (x = iter()) isnt iter_end
+			break if callback(x, fruit) is iter_brk
+		fruit
+
+	Object.defineProperties foreach,
+		break:
+			writable: false
+			configurable: false
+			enumerable: false
+			value: iter_brk
+
+	filter = (ok) ->
+		(iter) ->
+			iter = iterator(iter)
+			->
+				null while not ok(x = iter()) and x isnt iter_end
+				return x
 
 	best = (better) ->
 		(iter) ->
 			iter = iterator(iter)
-			r = iter()
-			return null if r is iterator.end
-			it = iter()
-			while it isnt iterator.end
+			return null if (r = iter()) is iter_end
+			while (it = iter()) isnt iter_end
 				r = if better(it, r) then it else r
-				it = iter()
 			return r
 
 	all = (f) ->
 		f = ((x) -> x is f) if typeof(f) isnt 'function'
 		(iter) ->
 			iter = iterator(iter)
-			x = iter()
-			while x isnt iterator.end
+			while (x = iter()) isnt iter_end
 				return false if not f(x)
-				x = iter()
 			return true
 
 	any = (f) ->
 		all_not = all (x) -> not f(x)
-		(iter) ->
-			not (all_not iter)
+		(iter) -> not (all_not iter)
 
 	zip = (iters...) ->
 		iters = (iterator(iter) for iter in iters)
 		finished = do ->
-			end = new Object
-			any_is_end = any (x) -> x is end
-			(ls) -> any_is_end iterator(ls, end)
+			another_end = new Object
+			any_is_end = any (x) -> x is another_end
+			(ls) -> any_is_end iterator(ls, another_end)
 		->
 			next = (iter() for iter in iters)
 			if finished(next)
-				return iterator.end
+				return iter_end
 			else
 				return next
 
@@ -261,7 +296,7 @@ coffee_mate = do ->
 			keys = Object.keys(iterable)
 			i = -1
 			->
-				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iterator.end
+				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iter_end
 
 	inc_vector = (limits) ->
 		len_minus_1 = limits.length - 1
@@ -282,16 +317,16 @@ coffee_mate = do ->
 		(vec) ->
 			(space[i][vec[i]] for i in [0...len])
 
-	cart = (iters...) ->
+	cart = (iters...) -> #cartesian_product: recover the lack of nested list comprehensions
 		sets = (list(set) for set in iters)
 		limits = (sets[i].length for i in [0...sets.length])
 		inc = inc_vector(limits)
 		get_value = apply_vector(sets)
 		v = (0 for i in [0...sets.length])
 		->
-			if v[0] < limits[0] then (r = get_value v; inc v; r) else iterator.end
+			if v[0] < limits[0] then (r = get_value v; inc v; r) else iter_end
 
-	#cart = (sets...) -> #cartesian_product; recover the lack of nested list comprehensions
+	#cart = (sets...) ->
 	#	sets = (list(set) for set in sets)
 	#	rst = []
 	#	len = sets.length
@@ -306,7 +341,6 @@ coffee_mate = do ->
 	church = (n) -> #the nth church number
 		iter = (f, n, r) ->
 			if n == 0 then r else iter(f, n - 1, f(r))
-
 		(f) ->
 			(x) -> iter(f, n + 0, x)
 
@@ -329,25 +363,34 @@ coffee_mate = do ->
 
 	square = (n) -> n * n
 	cube = (n) -> n * n * n
+	abs = Math.abs
+	floor = Math.floor
+	ceil = Math.ceil
 
-	sum = (arr) ->
+	accept_multi_or_array = (f) ->
+		(arr...) ->
+			f(if arr.length == 1 and arr.first instanceof Array then arr.first else arr)
+
+	sum = accept_multi_or_array (arr) ->
+		arr = arr.first if arr.length == 1 and arr.first instanceof Array
 		r = 0
 		r += x for x in arr
 		r
 
-	max = (arr) ->
+	max = accept_multi_or_array (arr) ->
 		best((a, b) -> a > b) arr
 
-	min = (arr) ->
+	min = accept_multi_or_array (arr) ->
 		best((a, b) -> a < b) arr
 
-	max_index = (arr) ->
+	max_index = accept_multi_or_array (arr) ->
 		best((i, j) -> arr[i] > arr[j]) [0...arr.length]
 
-	min_index = (arr) ->
+	min_index = accept_multi_or_array (arr) ->
 		best((i, j) -> arr[i] < arr[j]) [0...arr.length]
 
 ########################### exports ##############################
+
 	return {
 		log: log
 		sleep: sleep
@@ -365,22 +408,18 @@ coffee_mate = do ->
 		json: json
 		obj: obj
 
-		extend: extend
-		size: size
-
-		uri_encode: uri_encode
-		uri_decode: uri_decode
-
 		random_gen: random_gen
 		ranged_random_gen: ranged_random_gen
 
 		iterator: iterator
 		list: list
 		foreach: foreach
+		filter: filter
 		enumerate: enumerate
 		nature_number: nature_number
 		range: range
 		head: head
+		tail: tail
 		best: best
 		all: all
 		any: any
@@ -392,6 +431,9 @@ coffee_mate = do ->
 
 		square: square
 		cube: cube
+		abs: abs
+		floor: floor
+		ceil: ceil
 		sum: sum
 		max: max
 		min: min
@@ -404,3 +446,4 @@ if window?
 	window._ ?= coffee_mate
 else
 	module.exports = coffee_mate
+
