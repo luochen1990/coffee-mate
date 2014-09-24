@@ -15,7 +15,8 @@ coffee_mate = do ->
 					ball.push('##', f)
 			console[op] ball...
 			histories.push(ball)
-			histories.splice(0, 1) if histories.length >= 10
+			histories.shift() if histories.length >= 10
+			return null
 		ret = foo('log')
 		ret.histories = histories
 		ret.info = foo('info')

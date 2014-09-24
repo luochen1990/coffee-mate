@@ -28,8 +28,9 @@
           console[op].apply(console, ball);
           histories.push(ball);
           if (histories.length >= 10) {
-            return histories.splice(0, 1);
+            histories.shift();
           }
+          return null;
         };
       };
       ret = foo('log');
