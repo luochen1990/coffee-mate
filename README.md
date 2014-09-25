@@ -40,7 +40,7 @@ API List
 
 ### reinforce Object
 
-- `some_object.size`: return the keys number of an dictionary(object), that's just a shotcut for `Object.keys(obj).length`
+- `some_object.size`: return the keys number of an dictionary(object), that's just a shortcut for `Object.keys(obj).length`
 - `some_object.extend`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as defaults
 - `some_object.update`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as updates
 - `some_object.uri_encode`: encode a dictionary to get an uri which will be appended after a url as params
@@ -55,7 +55,7 @@ API List
 - `iterator`: given an array, return it's iterator form, an iterator will pass through directly.
 - `iterator.end`: the symbol of iterating ending. if `iterating.end` is returned, the iterating is finished.
 - `list`: given an iterator, return an array, an array will pass through directly.
-- `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yeild by the iterator, finally return the result value(which should be modified by the callback directly).
+- `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yield by the iterator, finally return the result value(which should be modified by the callback directly).
 - `foreach.break`: the symbol of foreach breaking. if `foreach.break` is returned, the foreach loop is finished.
 - `enumerate`: given an iterator, array or object, returns an iterator which yields `[key, value]` pairs.
 - `nature_number`: given an optional first element, returns an unlimitted increasing integer iterator.
@@ -83,7 +83,7 @@ API List
 - `max_index`: given an array of numbers, return the index of the greatest one
 - `min_index`: given an array of numbers, return the index of the smallest one
 
-Useage
+Usage
 ------
 
 #### install & require in nodejs
