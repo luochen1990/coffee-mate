@@ -133,7 +133,7 @@ coffee_mate = do ->
 ####################### reinforce Object #########################
 
 	Object.defineProperties Object.prototype,
-		size:
+		len:
 			get: -> Object.keys(@).length
 		extend:
 			enumerable: false

@@ -284,7 +284,7 @@
       }
     });
     Object.defineProperties(Object.prototype, {
-      size: {
+      len: {
         get: function() {
           return Object.keys(this).length;
         }

@@ -40,7 +40,7 @@ API List
 
 ### reinforce Object
 
-- `some_object.size`: return the keys number of an dictionary(object), that's just a shortcut for `Object.keys(obj).length`
+- `some_object.len`: return the keys number of an dictionary(object), that's just a shortcut for `Object.keys(obj).length`
 - `some_object.extend`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as defaults
 - `some_object.update`: return a extended version of an dictionary(object), values from the param dictionaries will be treated as updates
 - `some_object.uri_encode`: encode a dictionary to get an uri which will be appended after a url as params

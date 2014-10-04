@@ -59,7 +59,7 @@ log -> [1, 2, 3].repeat(3).sort().unique()
 console.log '\n####################### reinforce Object #########################\n'
 
 log -> d
-log -> d.size
+log -> d.len
 log -> {}.extend(d, 0: 0, 1: 'known')
 log -> {}.update(d, 0: 0, 1: 'known')
 
