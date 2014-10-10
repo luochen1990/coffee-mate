@@ -33,7 +33,7 @@ coffee_mate = do ->
 
 	{copy, deepcopy} = do ->
 		cp = (root, dep) ->
-			return root if dep == 0 or typeof(root) != 'object'
+			return root if dep == 0 or not root? or typeof(root) != 'object'
 			if root instanceof Array
 				r = (cp(v, dep-1) for v in root)
 			else
