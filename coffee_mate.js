@@ -4,9 +4,17 @@
     __slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, apply_vector, best, bool, cart, ceil, chr, church, copy, cube, deepcopy, desc_vector, dict, enumerate, filter, float, floor, foreach, head, hex, inc_vector, int, iter_brk, iter_end, iterator, json, list, log, max, max_index, memorize, min, min_index, nature_number, obj, ord, random_gen, range, ranged_random_gen, sleep, square, str, sum, tail, zip, _ref;
+    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, cut, deepcopy, dict, enumerate, filter, float, floor, foreach, function_literal, head, hex, int, iter_brk, iter_end, iterator, json, list, log, map, max, max_index, memorize, min, min_index, nature_number, obj, ord, pass, prime_number, random_gen, range, ranged_random_gen, sleep, square, str, streak, sum, tail, uri_decoder, uri_encoder, zip, _ref;
+    function_literal = function(f) {
+      var expr;
+      expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
+      if (expr.length <= 100) {
+        expr = expr.replace(/[\r\n]{1,2}\s*/g, '');
+      }
+      return expr;
+    };
     log = (function() {
-      var foo, histories, ret;
+      var foo, histories, _log;
       histories = [];
       foo = function(op) {
         return function() {
@@ -16,10 +24,7 @@
           for (_i = 0, _len = args.length; _i < _len; _i++) {
             f = args[_i];
             if (typeof f === 'function') {
-              expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
-              if (expr.length <= 100) {
-                expr = expr.replace(/[\r\n]{1,2}\s*/g, '');
-              }
+              expr = function_literal(f);
               ball.push("## " + expr + " ==>", f());
             } else {
               ball.push('##', f);
@@ -33,13 +38,18 @@
           return null;
         };
       };
-      ret = foo('log');
-      ret.histories = histories;
-      ret.info = foo('info');
-      ret.warn = foo('warn');
-      ret.error = ret.err = foo('error');
-      return ret;
+      _log = foo('log');
+      _log.histories = histories;
+      _log.info = foo('info');
+      _log.warn = foo('warn');
+      _log.error = _log.err = foo('error');
+      return _log;
     })();
+    assert = function(f, msg) {
+      if (!f()) {
+        return console.error("ASSERTION FAILED: " + (msg != null ? msg : function_literal(f)));
+      }
+    };
     sleep = function(seconds, callback) {
       return setTimeout(callback, seconds * 1000);
     };
@@ -56,7 +66,7 @@
       var cp;
       cp = function(root, dep) {
         var k, r, v;
-        if (dep === 0 || typeof root !== 'object') {
+        if (dep === 0 || (root == null) || typeof root !== 'object') {
           return root;
         }
         if (root instanceof Array) {
@@ -180,25 +190,6 @@
           }
           return this.substr(i, j);
         }
-      },
-      uri_decode: {
-        enumerable: false,
-        value: function(unpacker) {
-          var d, k, s, v, _i, _j, _len, _ref1, _ref2, _ref3;
-          if (unpacker == null) {
-            unpacker = (function(s) {
-              return s;
-            });
-          }
-          d = {};
-          _ref2 = (_ref1 = this.match(/[^?=&]+=[^&]*/g)) != null ? _ref1 : [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            s = _ref2[_i];
-            _ref3 = s.match(/([^=]+)=(.*)/), _j = _ref3.length - 2, k = _ref3[_j++], v = _ref3[_j++];
-            d[decodeURIComponent(k)] = unpacker(decodeURIComponent(v));
-          }
-          return d;
-        }
       }
     });
     Object.defineProperties(Array.prototype, {
@@ -283,67 +274,85 @@
         })()
       }
     });
-    Object.defineProperties(Object.prototype, {
+    Object.defineProperties(Object, {
       len: {
-        get: function() {
-          return Object.keys(this).length;
+        enumerable: false,
+        value: function(d) {
+          return Object.keys(d).length;
         }
       },
       extend: {
         enumerable: false,
         value: function() {
-          var d, defaults, k, v, _i, _len;
-          defaults = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          var base, d, defaults, k, v, _i, _len;
+          base = arguments[0], defaults = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           for (_i = 0, _len = defaults.length; _i < _len; _i++) {
             d = defaults[_i];
             if (d != null) {
               for (k in d) {
                 v = d[k];
-                if (this[k] == null) {
-                  this[k] = v;
+                if (base[k] == null) {
+                  base[k] = v;
                 }
               }
             }
           }
-          return this;
+          return base;
         }
       },
       update: {
         enumerable: false,
         value: function() {
-          var d, k, updates, v, _i, _len;
-          updates = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+          var base, d, k, updates, v, _i, _len;
+          base = arguments[0], updates = 2 <= arguments.length ? __slice.call(arguments, 1) : [];
           for (_i = 0, _len = updates.length; _i < _len; _i++) {
             d = updates[_i];
             if (d != null) {
               for (k in d) {
                 v = d[k];
-                this[k] = v;
+                base[k] = v;
               }
             }
           }
-          return this;
-        }
-      },
-      uri_encode: {
-        enumerable: false,
-        value: function(packer) {
-          var k, v;
-          if (packer == null) {
-            packer = str;
-          }
-          return ((function() {
-            var _results;
-            _results = [];
-            for (k in this) {
-              v = this[k];
-              _results.push("" + (encodeURIComponent(k)) + "=" + (encodeURIComponent(packer(v))));
-            }
-            return _results;
-          }).call(this)).join('&');
+          return base;
         }
       }
     });
+    uri_encoder = function(component_packer) {
+      if (component_packer == null) {
+        component_packer = str;
+      }
+      return function(obj) {
+        var k, v;
+        return ((function() {
+          var _results;
+          _results = [];
+          for (k in obj) {
+            v = obj[k];
+            _results.push("" + (encodeURIComponent(k)) + "=" + (encodeURIComponent(component_packer(v))));
+          }
+          return _results;
+        })()).join('&');
+      };
+    };
+    uri_decoder = function(component_unpacker) {
+      if (component_unpacker == null) {
+        component_unpacker = (function(s) {
+          return s;
+        });
+      }
+      return function(str) {
+        var d, k, s, v, _i, _j, _len, _ref1, _ref2, _ref3;
+        d = {};
+        _ref2 = (_ref1 = str.match(/[^?=&]+=[^&]*/g)) != null ? _ref1 : [];
+        for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+          s = _ref2[_i];
+          _ref3 = s.match(/([^=]+)=(.*)/), _j = _ref3.length - 2, k = _ref3[_j++], v = _ref3[_j++];
+          d[decodeURIComponent(k)] = component_unpacker(decodeURIComponent(v));
+        }
+        return d;
+      };
+    };
     random_gen = (function() {
       var hash;
       hash = function(x) {
@@ -382,6 +391,15 @@
       return function() {
         return ++i;
       };
+    };
+    prime_number = function() {
+      return filter(function(x) {
+        return all(function(p) {
+          return x % p !== 0;
+        })(cut(function(p) {
+          return p * p <= x;
+        })(range(2, Infinity)));
+      })(range(2, Infinity));
     };
     range = function() {
       var args, i, start, step, stop;
@@ -491,6 +509,32 @@
       }
       return _results;
     };
+    enumerate = function(iterable, replaced_end) {
+      var i, keys;
+      if (iterable instanceof Array) {
+        iterable = iterator(iterable);
+      }
+      if (typeof iterable === 'function') {
+        return zip((function() {
+          var i;
+          i = -1;
+          return function() {
+            return ++i;
+          };
+        })(), iterable);
+      } else {
+        keys = Object.keys(iterable);
+        i = -1;
+        return function() {
+          var k;
+          if (++i < keys.length) {
+            return [(k = keys[i]), iterable[k]];
+          } else {
+            return iter_end;
+          }
+        };
+      }
+    };
     head = function(n) {
       return function(iter) {
         var c;
@@ -505,7 +549,7 @@
         };
       };
     };
-    tail = function(n) {
+    pass = function(n) {
       return function(iter) {
         var finished, i, _i;
         iter = iterator(iter);
@@ -525,24 +569,19 @@
         }
       };
     };
-    foreach = function(iterable, callback, fruit) {
-      var iter, x;
-      iter = iterator(iterable);
-      while ((x = iter()) !== iter_end) {
-        if (callback(x, fruit) === iter_brk) {
-          break;
-        }
-      }
-      return fruit;
+    map = function(f) {
+      return function(iter) {
+        iter = iterator(iter);
+        return function() {
+          var x;
+          if ((x = iter()) !== iter_end) {
+            return f(x);
+          } else {
+            return iter_end;
+          }
+        };
+      };
     };
-    Object.defineProperties(foreach, {
-      "break": {
-        writable: false,
-        configurable: false,
-        enumerable: false,
-        value: iter_brk
-      }
-    });
     filter = function(ok) {
       return function(iter) {
         iter = iterator(iter);
@@ -555,43 +594,55 @@
         };
       };
     };
-    best = function(better) {
+    cut = function(ok) {
       return function(iter) {
-        var it, r;
         iter = iterator(iter);
-        if ((r = iter()) === iter_end) {
-          return null;
-        }
-        while ((it = iter()) !== iter_end) {
-          r = better(it, r) ? it : r;
-        }
-        return r;
-      };
-    };
-    all = function(f) {
-      if (typeof f !== 'function') {
-        f = (function(x) {
-          return x === f;
-        });
-      }
-      return function(iter) {
-        var x;
-        iter = iterator(iter);
-        while ((x = iter()) !== iter_end) {
-          if (!f(x)) {
-            return false;
+        return function() {
+          var x;
+          if ((x = iter()) !== iter_end && ok(x)) {
+            return x;
+          } else {
+            return iter_end;
           }
-        }
-        return true;
+        };
       };
     };
-    any = function(f) {
-      var all_not;
-      all_not = all(function(x) {
-        return !f(x);
-      });
+    streak = function(n) {
       return function(iter) {
-        return !(all_not(iter));
+        var buf;
+        iter = iterator(iter);
+        buf = [];
+        return function() {
+          var x;
+          if ((x = iter()) === iter_end) {
+            return iter_end;
+          }
+          buf.push(x);
+          if (buf.length > n) {
+            buf.shift(1);
+          }
+          return buf.slice(0);
+        };
+      };
+    };
+    concat = function() {
+      var current_index, i, iter, iters, _i, _len, _ref1;
+      iters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+      for (i = _i = 0, _len = iters.length; _i < _len; i = ++_i) {
+        iter = iters[i];
+        iters[i] = iterator(iter);
+      }
+      _ref1 = [iters[0], 0], iter = _ref1[0], current_index = _ref1[1];
+      return function() {
+        var x;
+        if ((x = iter()) !== iter_end) {
+          return x;
+        } else if (++current_index < iters.length) {
+          iter = iters[current_index];
+          return iter();
+        } else {
+          return iter_end;
+        }
       };
     };
     zip = function() {
@@ -634,108 +685,139 @@
         }
       };
     };
-    enumerate = function(iterable, replaced_end) {
-      var i, keys;
-      if (iterable instanceof Array) {
-        iterable = iterator(iterable);
-      }
-      if (typeof iterable === 'function') {
-        return zip((function() {
+    cart = (function() {
+      var apply_vector, inc_vector;
+      inc_vector = function(limits) {
+        var len_minus_1;
+        len_minus_1 = limits.length - 1;
+        return function(vec) {
           var i;
-          i = -1;
-          return function() {
-            return ++i;
-          };
-        })(), iterable);
-      } else {
-        keys = Object.keys(iterable);
-        i = -1;
+          i = len_minus_1;
+          while (!(++vec[i] < limits[i] || i <= 0)) {
+            vec[i--] = 0;
+          }
+          return vec;
+        };
+      };
+      apply_vector = function(space) {
+        var len;
+        len = space.length;
+        return function(vec) {
+          var i, _i, _results;
+          _results = [];
+          for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
+            _results.push(space[i][vec[i]]);
+          }
+          return _results;
+        };
+      };
+      return function() {
+        var get_value, i, inc, iters, limits, set, sets, v;
+        iters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        sets = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = iters.length; _i < _len; _i++) {
+            set = iters[_i];
+            _results.push(list(set));
+          }
+          return _results;
+        })();
+        limits = (function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push(sets[i].length);
+          }
+          return _results;
+        })();
+        inc = inc_vector(limits);
+        get_value = apply_vector(sets);
+        v = (function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push(0);
+          }
+          return _results;
+        })();
         return function() {
-          var k;
-          if (++i < keys.length) {
-            return [(k = keys[i]), iterable[k]];
+          var r;
+          if (v[0] < limits[0]) {
+            r = get_value(v);
+            inc(v);
+            return r;
           } else {
             return iter_end;
           }
         };
+      };
+    })();
+    foreach = function(iterable, callback, fruit) {
+      var iter, x;
+      iter = iterator(iterable);
+      while ((x = iter()) !== iter_end) {
+        if (callback(x, fruit) === iter_brk) {
+          break;
+        }
       }
+      return fruit;
     };
-    inc_vector = function(limits) {
-      var len_minus_1;
-      len_minus_1 = limits.length - 1;
-      return function(vec) {
-        var i;
-        i = len_minus_1;
-        while (!(++vec[i] < limits[i] || i <= 0)) {
-          vec[i--] = 0;
+    Object.defineProperties(foreach, {
+      "break": {
+        writable: false,
+        configurable: false,
+        enumerable: false,
+        value: iter_brk
+      }
+    });
+    best = function(better) {
+      return function(iter) {
+        var it, r;
+        iter = iterator(iter);
+        if ((r = iter()) === iter_end) {
+          return null;
         }
-        return vec;
+        while ((it = iter()) !== iter_end) {
+          r = better(it, r) ? it : r;
+        }
+        return r;
       };
     };
-    desc_vector = function(limits) {
-      var len_minus_1;
-      len_minus_1 = limits.length - 1;
-      return function(vec) {
-        var i;
-        i = len_minus_1;
-        while (!(--vec[i] >= 0 || i <= 0)) {
-          vec[i] = limits[i--] - 1;
+    all = function(f) {
+      if (typeof f !== 'function') {
+        f = (function(x) {
+          return x === f;
+        });
+      }
+      return function(iter) {
+        var x;
+        iter = iterator(iter);
+        while ((x = iter()) !== iter_end) {
+          if (!f(x)) {
+            return false;
+          }
         }
-        return vec;
+        return true;
       };
     };
-    apply_vector = function(space) {
-      var len;
-      len = space.length;
-      return function(vec) {
-        var i, _i, _results;
-        _results = [];
-        for (i = _i = 0; 0 <= len ? _i < len : _i > len; i = 0 <= len ? ++_i : --_i) {
-          _results.push(space[i][vec[i]]);
-        }
-        return _results;
+    any = function(f) {
+      var all_not;
+      all_not = all(function(x) {
+        return !f(x);
+      });
+      return function(iter) {
+        return !(all_not(iter));
       };
     };
-    cart = function() {
-      var get_value, i, inc, iters, limits, set, sets, v;
-      iters = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
-      sets = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = iters.length; _i < _len; _i++) {
-          set = iters[_i];
-          _results.push(list(set));
-        }
-        return _results;
-      })();
-      limits = (function() {
-        var _i, _ref1, _results;
-        _results = [];
-        for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          _results.push(sets[i].length);
-        }
-        return _results;
-      })();
-      inc = inc_vector(limits);
-      get_value = apply_vector(sets);
-      v = (function() {
-        var _i, _ref1, _results;
-        _results = [];
-        for (i = _i = 0, _ref1 = sets.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          _results.push(0);
-        }
-        return _results;
-      })();
-      return function() {
-        var r;
-        if (v[0] < limits[0]) {
-          r = get_value(v);
-          inc(v);
-          return r;
-        } else {
-          return iter_end;
-        }
-      };
+    tail = function(iter, empty_sign) {
+      var last, x;
+      iter = iterator(iter);
+      last = empty_sign;
+      while ((x = iter()) !== iter_end) {
+        last = x;
+      }
+      return last;
     };
     church = function(n) {
       var iter;
@@ -845,6 +927,7 @@
     });
     return {
       log: log,
+      assert: assert,
       sleep: sleep,
       dict: dict,
       copy: copy,
@@ -858,22 +941,30 @@
       chr: chr,
       json: json,
       obj: obj,
-      random_gen: random_gen,
-      ranged_random_gen: ranged_random_gen,
+      uri_encoder: uri_encoder,
+      uri_decoder: uri_decoder,
       iterator: iterator,
       list: list,
-      foreach: foreach,
-      filter: filter,
       enumerate: enumerate,
-      nature_number: nature_number,
       range: range,
+      nature_number: nature_number,
+      prime_number: prime_number,
+      random_gen: random_gen,
+      ranged_random_gen: ranged_random_gen,
+      map: map,
+      filter: filter,
+      cut: cut,
+      streak: streak,
       head: head,
-      tail: tail,
+      pass: pass,
+      concat: concat,
+      zip: zip,
+      cart: cart,
+      foreach: foreach,
       best: best,
       all: all,
       any: any,
-      zip: zip,
-      cart: cart,
+      tail: tail,
       church: church,
       Y: Y,
       memorize: memorize,

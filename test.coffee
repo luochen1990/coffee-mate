@@ -11,6 +11,10 @@ log.warn -> a - b
 log.error -> sum(a, b, 1)
 log -> log.histories
 
+# the assert macro
+assert -> 1 < 0
+assert (-> 1 < 0), 'one is less than zero'
+
 # dict comprehension
 d = dict([i, i*i] for i in [1..3])
 log "dict([i, i*i] for i in [1..3]) ==> #{json d}"
@@ -59,9 +63,9 @@ log -> [1, 2, 3].repeat(3).sort().unique()
 console.log '\n####################### reinforce Object #########################\n'
 
 log -> d
-log -> d.len
-log -> {}.extend(d, 0: 0, 1: 'known')
-log -> {}.update(d, 0: 0, 1: 'known')
+log -> Object.len(d)
+log -> Object.extend({}, d, 0: 0, 1: 'known')
+log -> Object.update({}, d, 0: 0, 1: 'known')
 
 console.log '\n####################### lazy evaluation ##########################\n'
 
@@ -69,17 +73,19 @@ ls = (chr(ord('a')+i) for i in [0...3])
 log -> ls
 log -> list enumerate ls
 log -> list head(3) nature_number()
-log -> list head(3) tail(3) nature_number()
-log -> list(zip(nature_number(), ls))
-log -> list head(4)(cart(list(range(0, 10)), ls))
-log -> all((n) -> 'a'.repeat(n).length == n)(range(0, 100))
+log -> list head(3) pass(3) nature_number()
+log -> list cut((x) -> x <= 20) prime_number()
+log -> tail streak(3) cut((x) -> x <= 20) prime_number()
+log -> list zip(nature_number(), ls)
+log -> list head(4) cart(list(range(0, 10)), ls)
 log -> list filter((x) -> x % 3 == 1) range(10)
+log -> all((n) -> 'a'.repeat(n).length == n) range(0, 100)
 log -> foreach range(10), ((x, r) -> return (r.push x if x % 3 == 1)), []
 
 console.log '\n######################### url helpers ############################\n'
 
-log -> d.uri_encode()
-log -> d.uri_encode().uri_decode()
+log -> uri_encoder(json) d
+log -> uri_decoder(obj) uri_encoder(json) d
 
 console.log '\n###################### simple pseudo-random ######################\n'
 

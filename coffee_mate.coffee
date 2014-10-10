@@ -2,14 +2,18 @@ coffee_mate = do ->
 
 ###################### reinforce syntax ##########################
 
+	function_literal = (f) ->
+		expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1')
+		expr = expr.replace(/[\r\n]{1,2}\s*/g, '') if expr.length <= 100
+		return expr
+
 	log = do ->
 		histories = []
 		foo = (op) -> (args...) ->
 			ball = []
 			for f in args
 				if typeof f == 'function'
-					expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1')
-					expr = expr.replace(/[\r\n]{1,2}\s*/g, '') if expr.length <= 100
+					expr = function_literal(f)
 					ball.push("## #{expr} ==>", f())
 				else
 					ball.push('##', f)
@@ -17,12 +21,15 @@ coffee_mate = do ->
 			histories.push(ball)
 			histories.shift() if histories.length >= 10
 			return null
-		ret = foo('log')
-		ret.histories = histories
-		ret.info = foo('info')
-		ret.warn = foo('warn')
-		ret.error = ret.err = foo('error')
-		return ret
+		_log = foo('log')
+		_log.histories = histories
+		_log.info = foo('info')
+		_log.warn = foo('warn')
+		_log.error = _log.err = foo('error')
+		return _log
+
+	assert = (f, msg) ->
+		console.error "ASSERTION FAILED: #{msg ? function_literal(f)}" if not f()
 
 	sleep = (seconds, callback) -> setTimeout(callback, seconds * 1000)
 
@@ -79,14 +86,6 @@ coffee_mate = do ->
 				j = @.substr(i).search(end_pat)
 				return null if j == -1
 				@.substr(i, j)
-		uri_decode:
-			enumerable: false
-			value: (unpacker = ((s) -> s)) ->
-				d = {}
-				for s in (@match /[^?=&]+=[^&]*/g) ? []
-					[..., k, v] = s.match /([^=]+)=(.*)/
-					d[decodeURIComponent(k)] = (unpacker decodeURIComponent v)
-				return d
 
 ######################## reinforce Array #########################
 
@@ -132,25 +131,36 @@ coffee_mate = do ->
 
 ####################### reinforce Object #########################
 
-	Object.defineProperties Object.prototype,
+	Object.defineProperties Object,
 		len:
-			get: -> Object.keys(@).length
+			enumerable: false
+			value: (d) -> Object.keys(d).length
 		extend:
 			enumerable: false
-			value: (defaults...) -> #NOTE: modified inplace, use copy() to protect it.
+			value: (base, defaults...) -> #NOTE: modified inplace, use copy() to protect it.
 				for d in defaults when d?
-					@[k] ?= v for k, v of d #NOTE: null values will be replaced if a default value exists.
-				return @
+					base[k] ?= v for k, v of d #NOTE: null values will be replaced if a default value exists.
+				return base
 		update:
 			enumerable: false
-			value: (updates...) ->
+			value: (base, updates...) -> #NOTE: modified inplace, use copy() to protect it.
 				for d in updates when d?
-					@[k] = v for k, v of d
-				return @
-		uri_encode:
-			enumerable: false
-			value: (packer = str) ->
-				("#{encodeURIComponent(k)}=#{encodeURIComponent packer v}" for k, v of @).join('&')
+					base[k] = v for k, v of d
+				return base
+
+########################## url helpers ###########################
+
+	uri_encoder = (component_packer = str) ->
+		(obj) ->
+			("#{encodeURIComponent(k)}=#{encodeURIComponent component_packer v}" for k, v of obj).join('&')
+
+	uri_decoder = (component_unpacker = ((s) -> s)) ->
+		(str) ->
+			d = {}
+			for s in (str.match /[^?=&]+=[^&]*/g) ? []
+				[..., k, v] = s.match /([^=]+)=(.*)/
+				d[decodeURIComponent(k)] = (component_unpacker decodeURIComponent v)
+			return d
 
 ###################### simple pseudo-random ######################
 
@@ -172,6 +182,9 @@ coffee_mate = do ->
 	iter_brk = new Object #can be used outside the lib via foreach.break
 
 	nature_number = (first = 0) -> i = first-1; (-> ++i)
+
+	prime_number = ->
+		filter((x) -> all((p) -> x % p != 0) cut((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
 
 	range = (args...) ->
 		if args.length == 0
@@ -225,16 +238,123 @@ coffee_mate = do ->
 		return iterable if typeof(iterable) isnt 'function'
 		(x while (x = iterable()) isnt iter_end)
 
-	head = (n) -> (iter) ->
-		iter = iterator(iter)
-		c = -1
-		-> if ++c < n then iter() else iter_end
+	enumerate = (iterable, replaced_end) ->
+		iterable = iterator(iterable) if iterable instanceof Array
+		if typeof(iterable) is 'function'
+			return zip((-> i = -1; (-> ++i))(), iterable)
+		else
+			keys = Object.keys(iterable)
+			i = -1
+			->
+				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iter_end
 
-	tail = (n) -> (iter) ->
-		iter = iterator(iter)
-		finished = false
-		(finished or= (iter() is iter_end); break if finished) for i in [0...n]
-		if finished then (-> iter_end) else iter
+	head = (n) ->
+		(iter) ->
+			iter = iterator(iter)
+			c = -1
+			-> if ++c < n then iter() else iter_end
+
+	pass = (n) ->
+		(iter) ->
+			iter = iterator(iter)
+			finished = false
+			(finished or= (iter() is iter_end); break if finished) for i in [0...n]
+			if finished then (-> iter_end) else iter
+
+	map = (f) ->
+		(iter) ->
+			iter = iterator(iter)
+			->
+				if (x = iter()) isnt iter_end then f(x) else iter_end
+
+	filter = (ok) ->
+		(iter) ->
+			iter = iterator(iter)
+			->
+				null while not ok(x = iter()) and x isnt iter_end
+				return x
+
+	cut = (ok) ->
+		(iter) ->
+			iter = iterator(iter)
+			->
+				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
+
+	streak = (n) ->
+		(iter) ->
+			iter = iterator(iter)
+			buf = []
+			->
+				return iter_end if (x = iter()) is iter_end
+				buf.push(x)
+				buf.shift(1) if buf.length > n
+				return buf[...]
+
+	concat = (iters...) ->
+		iters[i] = iterator(iter) for iter, i in iters
+		[iter, current_index] = [iters[0], 0]
+		->
+			if (x = iter()) isnt iter_end
+				return x
+			else if (++current_index < iters.length)
+				iter = iters[current_index]
+				return iter()
+			else
+				return iter_end
+
+	zip = (iters...) ->
+		iters = (iterator(iter) for iter in iters)
+		finished = do ->
+			another_end = new Object
+			any_is_end = any (x) -> x is another_end
+			(ls) -> any_is_end iterator(ls, another_end)
+		->
+			next = (iter() for iter in iters)
+			if finished(next)
+				return iter_end
+			else
+				return next
+
+	cart = do ->
+		inc_vector = (limits) ->
+			len_minus_1 = limits.length - 1
+			(vec) ->
+				i = len_minus_1
+				vec[i--] = 0 until ++vec[i] < limits[i] or i <= 0
+				vec
+
+		#desc_vector = (limits) ->
+		#	len_minus_1 = limits.length - 1
+		#	(vec) ->
+		#		i = len_minus_1
+		#		vec[i] = limits[i--] - 1 until --vec[i] >= 0 or i <= 0
+		#		vec
+	 
+		apply_vector = (space) ->
+			len = space.length
+			(vec) ->
+				(space[i][vec[i]] for i in [0...len])
+
+		(iters...) -> #cartesian_product: recover the lack of nested list comprehensions
+			sets = (list(set) for set in iters)
+			limits = (sets[i].length for i in [0...sets.length])
+			inc = inc_vector(limits)
+			get_value = apply_vector(sets)
+			v = (0 for i in [0...sets.length])
+			->
+				if v[0] < limits[0] then (r = get_value v; inc v; r) else iter_end
+
+	#cart = (sets...) ->
+	#	sets = (list(set) for set in sets)
+	#	rst = []
+	#	len = sets.length
+	#	rec = (st, d) ->
+	#		if d == len
+	#			rst.push(st)
+	#		else
+	#			rec(st.concat([x]), d + 1) for x in sets[d]
+	#	rec([], 0)
+	#	return rst
 
 	foreach = (iterable, callback, fruit) ->
 		iter = iterator(iterable)
@@ -248,13 +368,6 @@ coffee_mate = do ->
 			configurable: false
 			enumerable: false
 			value: iter_brk
-
-	filter = (ok) ->
-		(iter) ->
-			iter = iterator(iter)
-			->
-				null while not ok(x = iter()) and x isnt iter_end
-				return x
 
 	best = (better) ->
 		(iter) ->
@@ -276,68 +389,11 @@ coffee_mate = do ->
 		all_not = all (x) -> not f(x)
 		(iter) -> not (all_not iter)
 
-	zip = (iters...) ->
-		iters = (iterator(iter) for iter in iters)
-		finished = do ->
-			another_end = new Object
-			any_is_end = any (x) -> x is another_end
-			(ls) -> any_is_end iterator(ls, another_end)
-		->
-			next = (iter() for iter in iters)
-			if finished(next)
-				return iter_end
-			else
-				return next
-
-	enumerate = (iterable, replaced_end) ->
-		iterable = iterator(iterable) if iterable instanceof Array
-		if typeof(iterable) is 'function'
-			return zip((-> i = -1; (-> ++i))(), iterable)
-		else
-			keys = Object.keys(iterable)
-			i = -1
-			->
-				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iter_end
-
-	inc_vector = (limits) ->
-		len_minus_1 = limits.length - 1
-		(vec) ->
-			i = len_minus_1
-			vec[i--] = 0 until ++vec[i] < limits[i] or i <= 0
-			vec
-
-	desc_vector = (limits) ->
-		len_minus_1 = limits.length - 1
-		(vec) ->
-			i = len_minus_1
-			vec[i] = limits[i--] - 1 until --vec[i] >= 0 or i <= 0
-			vec
- 
-	apply_vector = (space) ->
-		len = space.length
-		(vec) ->
-			(space[i][vec[i]] for i in [0...len])
-
-	cart = (iters...) -> #cartesian_product: recover the lack of nested list comprehensions
-		sets = (list(set) for set in iters)
-		limits = (sets[i].length for i in [0...sets.length])
-		inc = inc_vector(limits)
-		get_value = apply_vector(sets)
-		v = (0 for i in [0...sets.length])
-		->
-			if v[0] < limits[0] then (r = get_value v; inc v; r) else iter_end
-
-	#cart = (sets...) ->
-	#	sets = (list(set) for set in sets)
-	#	rst = []
-	#	len = sets.length
-	#	rec = (st, d) ->
-	#		if d == len
-	#			rst.push(st)
-	#		else
-	#			rec(st.concat([x]), d + 1) for x in sets[d]
-	#	rec([], 0)
-	#	return rst
+	tail = (iter, empty_sign) -> #empty_sign is returned if the iter is empty, defaults to undefined
+		iter = iterator(iter)
+		last = empty_sign
+		last = x while (x = iter()) isnt iter_end
+		return last
 
 	church = (n) -> #the nth church number
 		iter = (f, n, r) ->
@@ -394,6 +450,7 @@ coffee_mate = do ->
 
 	return {
 		log: log
+		assert: assert
 		sleep: sleep
 		dict: dict
 		copy: copy
@@ -409,23 +466,34 @@ coffee_mate = do ->
 		json: json
 		obj: obj
 
-		random_gen: random_gen
-		ranged_random_gen: ranged_random_gen
+		uri_encoder: uri_encoder
+		uri_decoder: uri_decoder
 
 		iterator: iterator
 		list: list
-		foreach: foreach
-		filter: filter
 		enumerate: enumerate
-		nature_number: nature_number
 		range: range
+		nature_number: nature_number
+		prime_number: prime_number
+		random_gen: random_gen
+		ranged_random_gen: ranged_random_gen
+
+		map: map
+		filter: filter
+		cut: cut
+		streak: streak
 		head: head
-		tail: tail
+		pass: pass
+		concat: concat
+		zip: zip
+		cart: cart
+
+		foreach: foreach
 		best: best
 		all: all
 		any: any
-		zip: zip
-		cart: cart
+		tail: tail
+
 		church: church
 		Y: Y
 		memorize: memorize
