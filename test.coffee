@@ -69,17 +69,19 @@ log -> Object.update({}, d, 0: 0, 1: 'known')
 
 console.log '\n####################### lazy evaluation ##########################\n'
 
-ls = (chr(ord('a')+i) for i in [0...3])
-log -> ls
+#ls = (chr(ord('a')+i) for i in [0...3])
+ls = []
+log -> ls = list map((i) -> chr(ord('a')+i)) range(3)
 log -> list enumerate ls
-log -> list head(3) nature_number()
-log -> list head(3) pass(3) nature_number()
-log -> list cut((x) -> x <= 20) prime_number()
-log -> tail streak(3) cut((x) -> x <= 20) prime_number()
+log -> list take(3) nature_number()
+log -> list take(3) drop(3) nature_number()
+log -> list take((x) -> x <= 20) prime_number()
+log -> last streak(3) take((x) -> x <= 20) prime_number()
 log -> list zip(nature_number(), ls)
-log -> list head(4) cart(list(range(0, 10)), ls)
+log -> list take(4) cart(list(range(0, 10)), ls)
 log -> list filter((x) -> x % 3 == 1) range(10)
 log -> all((n) -> 'a'.repeat(n).length == n) range(0, 100)
+log -> fold(sum, 0) range(100)
 log -> foreach range(10), ((x, r) -> return (r.push x if x % 3 == 1)), []
 
 console.log '\n######################### url helpers ############################\n'
@@ -91,7 +93,7 @@ console.log '\n###################### simple pseudo-random #####################
 
 random = random_gen(0)
 (log -> random()) for i in [0...3]
-log -> list head(3) random_gen(0)
+log -> list take(3) random_gen(0)
 
 console.log '\n#################### mathematical functions ######################\n'
 

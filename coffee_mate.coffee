@@ -184,7 +184,7 @@ coffee_mate = do ->
 	nature_number = (first = 0) -> i = first-1; (-> ++i)
 
 	prime_number = ->
-		filter((x) -> all((p) -> x % p != 0) cut((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
+		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
 
 	range = (args...) ->
 		if args.length == 0
@@ -248,18 +248,38 @@ coffee_mate = do ->
 			->
 				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iter_end
 
-	head = (n) ->
-		(iter) ->
-			iter = iterator(iter)
-			c = -1
-			-> if ++c < n then iter() else iter_end
+	take = (n) ->
+		if typeof n == 'number'
+			(iter) ->
+				iter = iterator(iter)
+				c = -1
+				-> if ++c < n then iter() else iter_end
+		else
+			takeWhile(n)
 
-	pass = (n) ->
+	takeWhile = (ok) ->
 		(iter) ->
 			iter = iterator(iter)
-			finished = false
-			(finished or= (iter() is iter_end); break if finished) for i in [0...n]
-			if finished then (-> iter_end) else iter
+			->
+				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
+
+	drop = (n) ->
+		if typeof n == 'number'
+			(iter) ->
+				iter = iterator(iter)
+				finished = false
+				(finished or= (iter() is iter_end); break if finished) for i in [0...n]
+				if finished then (-> iter_end) else iter
+		else
+			dropWhile(n)
+
+	dropWhile = (ok) ->
+		(iter) ->
+			iter = iterator(iter)
+			null while ok(x = iter()) and x isnt iter_end
+			->
+				[_x, x] = [x, iter()]
+				return _x
 
 	map = (f) ->
 		(iter) ->
@@ -274,11 +294,11 @@ coffee_mate = do ->
 				null while not ok(x = iter()) and x isnt iter_end
 				return x
 
-	cut = (ok) ->
+	fold = (f, r) ->
 		(iter) ->
 			iter = iterator(iter)
-			->
-				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
+			r = f(r, x) while (x = iter()) isnt iter_end
+			return r
 
 	streak = (n) ->
 		(iter) ->
@@ -329,7 +349,7 @@ coffee_mate = do ->
 		#		i = len_minus_1
 		#		vec[i] = limits[i--] - 1 until --vec[i] >= 0 or i <= 0
 		#		vec
-	 
+
 		apply_vector = (space) ->
 			len = space.length
 			(vec) ->
@@ -389,11 +409,11 @@ coffee_mate = do ->
 		all_not = all (x) -> not f(x)
 		(iter) -> not (all_not iter)
 
-	tail = (iter, empty_sign) -> #empty_sign is returned if the iter is empty, defaults to undefined
+	last = (iter, empty_sign) -> #empty_sign is returned if the iter is empty, defaults to undefined
 		iter = iterator(iter)
-		last = empty_sign
-		last = x while (x = iter()) isnt iter_end
-		return last
+		r = empty_sign
+		r = x while (x = iter()) isnt iter_end
+		return r
 
 	church = (n) -> #the nth church number
 		iter = (f, n, r) ->
@@ -470,7 +490,6 @@ coffee_mate = do ->
 		uri_decoder: uri_decoder
 
 		iterator: iterator
-		list: list
 		enumerate: enumerate
 		range: range
 		nature_number: nature_number
@@ -480,19 +499,23 @@ coffee_mate = do ->
 
 		map: map
 		filter: filter
-		cut: cut
+		take: take
+		takeWhile: takeWhile
+		drop: drop
+		dropWhile: dropWhile
 		streak: streak
-		head: head
-		pass: pass
+
 		concat: concat
 		zip: zip
 		cart: cart
 
-		foreach: foreach
+		list: list
+		last: last
+		fold: fold
 		best: best
 		all: all
 		any: any
-		tail: tail
+		foreach: foreach
 
 		church: church
 		Y: Y
