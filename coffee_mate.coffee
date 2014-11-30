@@ -33,10 +33,16 @@ coffee_mate = do ->
 
 	sleep = (seconds, callback) -> setTimeout(callback, seconds * 1000)
 
+	#dict = (pairs) -> #constract object from list of pairs; recover the lack of dict comprehensions
+	#	d = {}
+	#	d[k] = v for [k, v] in pairs
+	#	return d
+
 	dict = (pairs) -> #constract object from list of pairs; recover the lack of dict comprehensions
-		d = {}
-		d[k] = v for [k, v] in pairs
-		return d
+		pairs = iterator(pairs) if pairs instanceof Array
+		foreach pairs, ([k, v], r) ->
+			r[k] = v
+		, {}
 
 	{copy, deepcopy} = do ->
 		cp = (root, dep) ->

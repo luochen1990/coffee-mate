@@ -54,13 +54,14 @@
       return setTimeout(callback, seconds * 1000);
     };
     dict = function(pairs) {
-      var d, k, v, _i, _len, _ref;
-      d = {};
-      for (_i = 0, _len = pairs.length; _i < _len; _i++) {
-        _ref = pairs[_i], k = _ref[0], v = _ref[1];
-        d[k] = v;
+      if (pairs instanceof Array) {
+        pairs = iterator(pairs);
       }
-      return d;
+      return foreach(pairs, function(_arg, r) {
+        var k, v;
+        k = _arg[0], v = _arg[1];
+        return r[k] = v;
+      }, {});
     };
     _ref = (function() {
       var cp;
