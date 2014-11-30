@@ -81,7 +81,7 @@ log -> list zip(nature_number(), ls)
 log -> list take(4) cart(list(range(0, 10)), ls)
 log -> list filter((x) -> x % 3 == 1) range(10)
 log -> all((n) -> 'a'.repeat(n).length == n) range(0, 100)
-log -> fold(sum, 0) range(100)
+log -> foldl(sum, 0) range(100)
 log -> foreach range(10), ((x, r) -> return (r.push x if x % 3 == 1)), []
 
 console.log '\n######################### url helpers ############################\n'

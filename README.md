@@ -29,13 +29,14 @@ API List
 - `range`: 0~3 arguments is allowed, just like the python function range(), returns a limitted integer iterator.
 - `prime_number`: a prime number generator
 
-#### the generator decorators
+#### the generator decorators/combinators
 
-- `head`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the first `n` item of `iter`.
-- `pass`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the item of `iter` without the first `n` ones.
+- `take`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the first `n` item of `iter`.
+- `takeWhile`: given a function `ok`, return a decorator when decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` until `ok(x)` is `false`.
+- `drop`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the item of `iter` without the first `n` ones.
+- `dropWhile`: given a function `ok`, return a decorator when decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` start from the first x where `ok(x)` is `true`.
 - `map`: given a function `f`, return a decorator which decorate an iterator `iter` to an iterator which yields `f(x)` for each item `x` in `iter`.
 - `filter`: given a function `ok`, return a decorator which decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` when `ok(x)` is `true`.
-- `cut`: given a function `ok`, return a decorator when decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` until `ok(x)` is `false`.
 - `streak`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the latest `n` item of `iter` each time.
 - `concat`: given a sort of iterators, return a concated one.
 - `zip`: given a sort of iterators, return a zipped one which is also an iterator.
@@ -45,7 +46,8 @@ API List
 
 - `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yield by the iterator, finally return the result value(which should be modified by the callback directly).
 - `foreach.break`: the symbol of foreach breaking. if `foreach.break` is returned, the foreach loop is finished.
-- `tail`: given an iterator, return the last element it generates.
+- `last`: given an iterator, return the last element it generates.
+- `foldl`: given an operator and a init value, return an iterator processor which generate a result
 - `best`: given a function describing which one is better, return a function describing which one is best
 - `all`: given a judge function, return a function deals with an iterator, which returns true only if for every item in the iterator, the judge function returns true
 - `any`: given a judge function, return a function deals with an iterator, which returns true if for any item in the iterator, the judge function returns true

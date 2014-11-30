@@ -294,7 +294,7 @@ coffee_mate = do ->
 				null while not ok(x = iter()) and x isnt iter_end
 				return x
 
-	fold = (f, r) ->
+	foldl = (f, r) ->
 		(iter) ->
 			iter = iterator(iter)
 			r = f(r, x) while (x = iter()) isnt iter_end
@@ -511,7 +511,7 @@ coffee_mate = do ->
 
 		list: list
 		last: last
-		fold: fold
+		foldl: foldl
 		best: best
 		all: all
 		any: any

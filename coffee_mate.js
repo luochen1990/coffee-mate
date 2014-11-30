@@ -4,7 +4,7 @@
     __slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, fold, foreach, function_literal, hex, int, iter_brk, iter_end, iterator, json, last, list, log, map, max, max_index, memorize, min, min_index, nature_number, obj, ord, prime_number, random_gen, range, ranged_random_gen, sleep, square, str, streak, sum, take, takeWhile, uri_decoder, uri_encoder, zip, _ref;
+    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterator, json, last, list, log, map, max, max_index, memorize, min, min_index, nature_number, obj, ord, prime_number, random_gen, range, ranged_random_gen, sleep, square, str, streak, sum, take, takeWhile, uri_decoder, uri_encoder, zip, _ref;
     function_literal = function(f) {
       var expr;
       expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -629,7 +629,7 @@
         };
       };
     };
-    fold = function(f, r) {
+    foldl = function(f, r) {
       return function(iter) {
         var x;
         iter = iterator(iter);
@@ -993,12 +993,12 @@
       zip: zip,
       cart: cart,
       list: list,
-      foreach: foreach,
-      fold: fold,
+      last: last,
+      foldl: foldl,
       best: best,
       all: all,
       any: any,
-      last: last,
+      foreach: foreach,
       church: church,
       Y: Y,
       memorize: memorize,
