@@ -12,16 +12,15 @@ log.error -> sum(a, b, 1)
 log -> log.histories
 
 # the assert macro
-assert -> 1 < 0
-assert (-> 1 < 0), 'one is less than zero'
+try
+	assert -> 1 < 0
+	assert 'one is less than zero', -> 1 < 0
+catch e
+	log e
 
 # dict comprehension
 d = dict([i, i*i] for i in [1..3])
 log "dict([i, i*i] for i in [1..3]) ==> #{json d}"
-
-# sleep syntactic sugar
-sleep 2, ->
-	log 'THE END'
 
 console.log '\n######################## copy & deepcopy #########################\n'
 
@@ -63,7 +62,7 @@ log -> [1, 2, 3].repeat(3).sort().unique()
 console.log '\n####################### reinforce Object #########################\n'
 
 log -> d
-log -> Object.len(d)
+log -> Object.size(d)
 log -> Object.extend({}, d, 0: 0, 1: 'known')
 log -> Object.update({}, d, 0: 0, 1: 'known')
 

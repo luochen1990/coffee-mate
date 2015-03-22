@@ -7,16 +7,24 @@ coffee_mate = do ->
 		expr = expr.replace(/[\r\n]{1,2}\s*/g, '') if expr.length <= 100
 		return expr
 
-	log = do ->
+	time_now = ->
+		(new Date).getTime()
+
+	log = do -> #log an expression with it's literal and time used
 		histories = []
 		foo = (op) -> (args...) ->
+			label = "##{if op == 'log' then '#' else op[0].toUpperCase()}"
 			ball = []
 			for f in args
 				if typeof f == 'function'
 					expr = function_literal(f)
-					ball.push("## #{expr} ==>", f())
+					start_time = time_now()
+					eval_result = f()
+					time_used = time_now() - start_time
+					ball.push("#{label} #{expr} ==>", f())
+					ball.push("[#{time_used}ms]") if time_used > 0
 				else
-					ball.push('##', f)
+					ball.push("#{label}", f)
 			console[op] ball...
 			histories.push(ball)
 			histories.shift() if histories.length >= 10
@@ -29,20 +37,23 @@ coffee_mate = do ->
 		return _log
 
 	assert = (f, msg) ->
-		console.error "ASSERTION FAILED: #{msg ? function_literal(f)}" if not f()
+		[f, msg] = [msg, f] if f not instanceof Function
+		throw "Assertion Failed: #{msg ? function_literal(f)}" if not f()
 
-	sleep = (seconds, callback) -> setTimeout(callback, seconds * 1000)
+	securely = (f) -> # ensure a function not to modify it's arguments
+		(args...) ->
+			args = deepcopy args
+			f(args...)
 
-	#dict = (pairs) -> #constract object from list of pairs; recover the lack of dict comprehensions
-	#	d = {}
-	#	d[k] = v for [k, v] in pairs
-	#	return d
+	dict = (pairs) -> #for dict comprehensions
+		d = {}
+		d[k] = v for [k, v] in pairs
+		return d
 
-	dict = (pairs) -> #constract object from list of pairs; recover the lack of dict comprehensions
-		pairs = iterator(pairs) if pairs instanceof Array
-		foreach pairs, ([k, v], r) ->
-			r[k] = v
-		, {}
+	#dict = (pairs) -> #for dict comprehensions
+	#	foreach pairs, ([k, v], r) ->
+	#		r[k] = v
+	#	, {}
 
 	{copy, deepcopy} = do ->
 		cp = (root, dep) ->
@@ -138,7 +149,7 @@ coffee_mate = do ->
 ####################### reinforce Object #########################
 
 	Object.defineProperties Object,
-		len:
+		size:
 			enumerable: false
 			value: (d) -> Object.keys(d).length
 		extend:
@@ -154,7 +165,7 @@ coffee_mate = do ->
 					base[k] = v for k, v of d
 				return base
 
-########################## url helpers ###########################
+####################### url helpers ########################
 
 	uri_encoder = (component_packer = str) ->
 		(obj) ->
@@ -168,7 +179,7 @@ coffee_mate = do ->
 				d[decodeURIComponent(k)] = (component_unpacker decodeURIComponent v)
 			return d
 
-###################### simple pseudo-random ######################
+###################### pseudo-random #######################
 
 	random_gen = do ->
 		hash = (x) ->
@@ -182,15 +193,22 @@ coffee_mate = do ->
 		random = random_gen(seed)
 		-> Math.floor(random() * range)
 
-######################## logic functions #########################
+########################### lazy ###########################
 
+	# Iterator Producers
 	iter_end = new Object #can be used outside the lib via iterator.end
 	iter_brk = new Object #can be used outside the lib via foreach.break
 
-	nature_number = (first = 0) -> i = first-1; (-> ++i)
+	new_iterator = (f, show = (-> "Iterator")) ->
+		f.toString = show
+		f.next = ->
+			r = f()
+			{value: r, done: r == iter_end}
+		return f
 
-	prime_number = ->
-		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
+	nature_number = (first = 0) ->
+		i = first-1
+		new_iterator (-> ++i), (-> "NatureNumberIterator: #{i + 1}")
 
 	range = (args...) ->
 		if args.length == 0
@@ -217,21 +235,29 @@ coffee_mate = do ->
 			else
 				(-> if (i += step) > stop then i else iter_end)
 
-	iterator = (iterable, replaced_end) ->
-		return iterable if typeof(iterable) is 'function'
-		throw 'ERR IN iterator(): ONLY Array & Iterator IS ACCEPTABLE' if not iterable instanceof Array
+	prime_number = ->
+		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
+
+	iterate = (ls, replaced_end) ->
 		i = -1
 		->
 			i += 1
-			if i < iterable.length
-				if iterable[i] is iter_end
+			if i < ls.length
+				if ls[i] is iter_end
 					if not replaced_end?
-						throw 'ERR IN iterator(): iterator.end APPEARS IN LIST, PASS A SECOND ARG FOR REPLACEMENT'
+						throw 'ERR IN iterate(): iterate.done APPEARS IN Array, PASS A SECOND ARG FOR REPLACEMENT'
 					replaced_end
 				else
-					iterable[i]
+					ls[i]
 			else
 				iter_end
+
+	iterator = (iterable, replaced_end) ->
+		if typeof iterable is 'function'
+			iterable
+		else
+			throw 'ERR IN iterator(): ONLY Array & Iterator IS ACCEPTABLE' if iterable not instanceof Array
+			iterate(iterable, replaced_end)
 
 	Object.defineProperties iterator,
 		end:
@@ -240,20 +266,17 @@ coffee_mate = do ->
 			enumerable: false
 			value: iter_end
 
-	list = (iterable) ->
-		return iterable if typeof(iterable) isnt 'function'
-		(x while (x = iterable()) isnt iter_end)
-
-	enumerate = (iterable, replaced_end) ->
-		iterable = iterator(iterable) if iterable instanceof Array
-		if typeof(iterable) is 'function'
-			return zip((-> i = -1; (-> ++i))(), iterable)
+	enumerate = (it, replaced_end) -> # iterator with index(or key for object)
+		it = iterator(it) if typeof it isnt 'function'
+		if typeof it is 'function'
+			return zip((-> i = -1; (-> ++i))(), it)
 		else
-			keys = Object.keys(iterable)
+			keys = Object.keys(it)
 			i = -1
 			->
-				if ++i < keys.length then [(k = keys[i]), iterable[k]] else iter_end
+				if ++i < keys.length then [(k = keys[i]), it[k]] else iter_end
 
+	# Iterator Decorators
 	take = (n) ->
 		if typeof n == 'number'
 			(iter) ->
@@ -265,14 +288,14 @@ coffee_mate = do ->
 
 	takeWhile = (ok) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			->
 				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
 
 	drop = (n) ->
 		if typeof n == 'number'
 			(iter) ->
-				iter = iterator(iter)
+				iter = iterator(iter) if typeof iter isnt 'function'
 				finished = false
 				(finished or= (iter() is iter_end); break if finished) for i in [0...n]
 				if finished then (-> iter_end) else iter
@@ -281,7 +304,7 @@ coffee_mate = do ->
 
 	dropWhile = (ok) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			null while ok(x = iter()) and x isnt iter_end
 			->
 				[_x, x] = [x, iter()]
@@ -289,26 +312,26 @@ coffee_mate = do ->
 
 	map = (f) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			->
 				if (x = iter()) isnt iter_end then f(x) else iter_end
 
 	filter = (ok) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			->
 				null while not ok(x = iter()) and x isnt iter_end
 				return x
 
 	foldl = (f, r) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			r = f(r, x) while (x = iter()) isnt iter_end
 			return r
 
 	streak = (n) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			buf = []
 			->
 				return iter_end if (x = iter()) is iter_end
@@ -316,8 +339,9 @@ coffee_mate = do ->
 				buf.shift(1) if buf.length > n
 				return buf[...]
 
+	# Iterator Combiners
 	concat = (iters...) ->
-		iters[i] = iterator(iter) for iter, i in iters
+		iters[i] = iterator(iter) for iter, i in iters when typeof iter isnt 'function'
 		[iter, current_index] = [iters[0], 0]
 		->
 			if (x = iter()) isnt iter_end
@@ -329,7 +353,7 @@ coffee_mate = do ->
 				return iter_end
 
 	zip = (iters...) ->
-		iters = (iterator(iter) for iter in iters)
+		iters[i] = iterator(iter) for iter, i in iters when typeof iter isnt 'function'
 		finished = do ->
 			another_end = new Object
 			any_is_end = any (x) -> x is another_end
@@ -382,8 +406,13 @@ coffee_mate = do ->
 	#	rec([], 0)
 	#	return rst
 
-	foreach = (iterable, callback, fruit) ->
-		iter = iterator(iterable)
+	# Iterator Consumers
+	list = (it) -> #force the iterator to get the array
+		return it if typeof it isnt 'function'
+		(x while (x = it()) isnt iter_end)
+
+	foreach = (iter, callback, fruit) ->
+		iter = iterator(iter) if typeof iter isnt 'function'
 		while (x = iter()) isnt iter_end
 			break if callback(x, fruit) is iter_brk
 		fruit
@@ -397,7 +426,7 @@ coffee_mate = do ->
 
 	best = (better) ->
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			return null if (r = iter()) is iter_end
 			while (it = iter()) isnt iter_end
 				r = if better(it, r) then it else r
@@ -406,7 +435,7 @@ coffee_mate = do ->
 	all = (f) ->
 		f = ((x) -> x is f) if typeof(f) isnt 'function'
 		(iter) ->
-			iter = iterator(iter)
+			iter = iterator(iter) if typeof iter isnt 'function'
 			while (x = iter()) isnt iter_end
 				return false if not f(x)
 			return true
@@ -416,10 +445,12 @@ coffee_mate = do ->
 		(iter) -> not (all_not iter)
 
 	last = (iter, empty_sign) -> #empty_sign is returned if the iter is empty, defaults to undefined
-		iter = iterator(iter)
+		iter = iterator(iter) if typeof iter isnt 'function'
 		r = empty_sign
 		r = x while (x = iter()) isnt iter_end
 		return r
+
+##################### funny functions ######################
 
 	church = (n) -> #the nth church number
 		iter = (f, n, r) ->
@@ -427,7 +458,7 @@ coffee_mate = do ->
 		(f) ->
 			(x) -> iter(f, n + 0, x)
 
-	Y = (f) ->
+	Y = (f) -> #the Y combinator
 		((x) -> (x x)) ((x) -> (f ((y) -> ((x x) y))))
 
 	memorize = (f, get_key = ((args...) -> json(args))) ->
@@ -442,7 +473,7 @@ coffee_mate = do ->
 				cache[key] = r
 				r
 
-#################### mathematical functions ######################
+################ mathematical functions ####################
 
 	square = (n) -> n * n
 	cube = (n) -> n * n * n
@@ -475,68 +506,23 @@ coffee_mate = do ->
 ########################### exports ##############################
 
 	return {
-		log: log
-		assert: assert
-		sleep: sleep
-		dict: dict
-		copy: copy
-		deepcopy: deepcopy
+		log, assert, dict, copy, deepcopy,
 
-		int: int
-		float: float
-		bool: bool
-		str: str
-		hex: hex
-		ord: ord
-		chr: chr
-		json: json
-		obj: obj
+		int, float, bool, str, hex, ord, chr, json, obj,
 
-		uri_encoder: uri_encoder
-		uri_decoder: uri_decoder
+		uri_encoder, uri_decoder,
 
-		iterator: iterator
-		enumerate: enumerate
-		range: range
-		nature_number: nature_number
-		prime_number: prime_number
-		random_gen: random_gen
-		ranged_random_gen: ranged_random_gen
+		iterator, enumerate, range, nature_number, prime_number, random_gen, ranged_random_gen,
 
-		map: map
-		filter: filter
-		take: take
-		takeWhile: takeWhile
-		drop: drop
-		dropWhile: dropWhile
-		streak: streak
+		map, filter, take, takeWhile, drop, dropWhile, streak,
 
-		concat: concat
-		zip: zip
-		cart: cart
+		concat, zip, cart,
 
-		list: list
-		last: last
-		foldl: foldl
-		best: best
-		all: all
-		any: any
-		foreach: foreach
+		list, last, foldl, best, all, any, foreach,
 
-		church: church
-		Y: Y
-		memorize: memorize
+		church, Y, memorize,
 
-		square: square
-		cube: cube
-		abs: abs
-		floor: floor
-		ceil: ceil
-		sum: sum
-		max: max
-		min: min
-		max_index: max_index
-		min_index: min_index
+		square, cube, abs, floor, ceil, sum, max, min, max_index, min_index,
 	}
 
 if window?
