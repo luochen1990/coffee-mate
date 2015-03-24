@@ -19,5 +19,9 @@
     "random"
   ],
   "main": "./coffee_mate.js",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "mocha": "^2.2.1"
+  }
 }

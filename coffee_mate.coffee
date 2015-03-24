@@ -11,30 +11,59 @@ coffee_mate = do ->
 		(new Date).getTime()
 
 	log = do -> #log an expression with it's literal and time used
+		dye = do ->
+			# ANSI Terminal Colors.
+			cavailable = process? and not process.env.NODE_DISABLE_COLORS
+			palette =
+				bold: '\x1B[0;1m'
+				red: '\x1B[0;31m'
+				green: '\x1B[0;32m'
+				yellow: '\x1B[0;33m'
+				blue: '\x1B[0;34m'
+				bold_grey: '\x1B[1;30m'
+			if not cavailable
+				(color) -> (s) -> s
+			else
+				(color) ->
+					(s) -> "#{palette[color]}#{s}#{'\x1B[0m'}"
+
+		log_label = do ->
+			flag_palette =
+				'#': 'bold_grey'
+				'I': 'green'
+				'E': 'red'
+				'W': 'yellow'
+			op_flag = (op) ->
+				if op == 'log' then '#' else op[0].toUpperCase()
+			(op) ->
+				flag = op_flag(op)
+				dye(flag_palette[flag]) flag
+
 		histories = []
-		foo = (op) -> (args...) ->
-			label = "##{if op == 'log' then '#' else op[0].toUpperCase()}"
-			ball = []
-			for f in args
-				if typeof f == 'function'
-					expr = function_literal(f)
-					start_time = time_now()
-					eval_result = f()
-					time_used = time_now() - start_time
-					ball.push("#{label} #{expr} ==>", f())
-					ball.push("[#{time_used}ms]") if time_used > 0
-				else
-					ball.push("#{label}", f)
-			console[op] ball...
-			histories.push(ball)
-			histories.shift() if histories.length >= 10
-			return null
-		_log = foo('log')
-		_log.histories = histories
-		_log.info = foo('info')
-		_log.warn = foo('warn')
-		_log.error = _log.err = foo('error')
-		return _log
+		factory = (op) ->
+			prefix = "#{dye('bold_grey') '#'}#{log_label op}"
+			(args...) ->
+				ball = []
+				for f in args
+					if typeof f == 'function'
+						expr = function_literal(f)
+						start_time = time_now()
+						eval_result = f()
+						time_used = time_now() - start_time
+						ball.push("#{prefix} #{dye('green') expr} #{dye('bold_grey') '==>'}", f())
+						ball.push(dye('yellow') "[#{time_used}ms]") if time_used > 0
+					else
+						ball.push("#{prefix}", f)
+				console[op] ball...
+				histories.push(ball)
+				histories.shift() if histories.length >= 10
+				return null
+		got = factory('log')
+		got.histories = histories
+		got.info = factory('info')
+		got.warn = factory('warn')
+		got.error = got.err = factory('error')
+		return got
 
 	assert = (f, msg) ->
 		[f, msg] = [msg, f] if f not instanceof Function
@@ -208,39 +237,38 @@ coffee_mate = do ->
 
 	nature_number = (first = 0) ->
 		i = first-1
-		new_iterator (-> ++i), (-> "NatureNumberIterator: #{i + 1}")
+		new_iterator (-> ++i), (-> "Iterator: #{i + 1}, #{i + 2} ...")
 
 	range = (args...) ->
 		if args.length == 0
-			i = -1
-			(-> ++i)
+			nature_number()
 		else if args.length == 1
 			[stop] = args
 			i = -1
-			(-> if ++i < stop then i else iter_end)
+			new_iterator (-> if ++i < stop then i else iter_end), (-> "Iterator: #{i + 1}, #{i + 2} until #{stop}")
 		else if args.length == 2
 			[start, stop] = args
 			if start < stop
 				i = start - 1
-				(-> if ++i < stop then i else iter_end)
+				new_iterator (-> if ++i < stop then i else iter_end), (-> "Iterator: #{i + 1}, #{i + 2} until #{stop}")
 			else
 				i = start + 1
-				(-> if --i > stop then i else iter_end)
+				new_iterator (-> if --i > stop then i else iter_end), (-> "Iterator: #{i - 1}, #{i - 2} until #{stop}")
 		else
 			[start, stop, step] = args
 			throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE' if stop != start and (stop - start) * step < 0
 			i = start - step
 			if start < stop
-				(-> if (i += step) < stop then i else iter_end)
+				new_iterator (-> if (i += step) < stop then i else iter_end), (-> "Iterator: #{i + step}, #{i + step + step} until #{stop}")
 			else
-				(-> if (i += step) > stop then i else iter_end)
+				new_iterator (-> if (i += step) > stop then i else iter_end), (-> "Iterator: #{i + step}, #{i + step + step} until #{stop}")
 
 	prime_number = ->
 		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
 
 	iterate = (ls, replaced_end) ->
 		i = -1
-		->
+		new_iterator ->
 			i += 1
 			if i < ls.length
 				if ls[i] is iter_end
@@ -273,7 +301,7 @@ coffee_mate = do ->
 		else
 			keys = Object.keys(it)
 			i = -1
-			->
+			new_iterator ->
 				if ++i < keys.length then [(k = keys[i]), it[k]] else iter_end
 
 	# Iterator Decorators
@@ -282,14 +310,14 @@ coffee_mate = do ->
 			(iter) ->
 				iter = iterator(iter)
 				c = -1
-				-> if ++c < n then iter() else iter_end
+				new_iterator -> if ++c < n then iter() else iter_end
 		else
 			takeWhile(n)
 
 	takeWhile = (ok) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			->
+			new_iterator ->
 				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
 
 	drop = (n) ->
@@ -306,44 +334,50 @@ coffee_mate = do ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
 			null while ok(x = iter()) and x isnt iter_end
-			->
-				[_x, x] = [x, iter()]
-				return _x
+			new_iterator ->
+				[prevx, x] = [x, iter()]
+				return prevx
 
 	map = (f) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			->
+			new_iterator ->
 				if (x = iter()) isnt iter_end then f(x) else iter_end
 
 	filter = (ok) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			->
+			new_iterator ->
 				null while not ok(x = iter()) and x isnt iter_end
 				return x
 
-	foldl = (f, r) ->
+	scanl = (f, r) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			r = f(r, x) while (x = iter()) isnt iter_end
-			return r
+			new_iterator ->
+				got = r
+				r = if (x = iter()) isnt iter_end then f(r, x) else iter_end
+				return got
 
 	streak = (n) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
 			buf = []
-			->
+			new_iterator ->
 				return iter_end if (x = iter()) is iter_end
 				buf.push(x)
 				buf.shift(1) if buf.length > n
 				return buf[...]
 
+	reverse = (iter) ->
+		ls = if typeof iter is 'function' then list iter else copy iter
+		return iterator ls.reverse()
+
 	# Iterator Combiners
 	concat = (iters...) ->
 		iters[i] = iterator(iter) for iter, i in iters when typeof iter isnt 'function'
 		[iter, current_index] = [iters[0], 0]
-		->
+		new_iterator ->
 			if (x = iter()) isnt iter_end
 				return x
 			else if (++current_index < iters.length)
@@ -358,7 +392,7 @@ coffee_mate = do ->
 			another_end = new Object
 			any_is_end = any (x) -> x is another_end
 			(ls) -> any_is_end iterator(ls, another_end)
-		->
+		new_iterator ->
 			next = (iter() for iter in iters)
 			if finished(next)
 				return iter_end
@@ -391,7 +425,7 @@ coffee_mate = do ->
 			inc = inc_vector(limits)
 			get_value = apply_vector(sets)
 			v = (0 for i in [0...sets.length])
-			->
+			new_iterator ->
 				if v[0] < limits[0] then (r = get_value v; inc v; r) else iter_end
 
 	#cart = (sets...) ->
@@ -423,6 +457,12 @@ coffee_mate = do ->
 			configurable: false
 			enumerable: false
 			value: iter_brk
+
+	foldl = (f, r) ->
+		(iter) ->
+			iter = iterator(iter) if typeof iter isnt 'function'
+			r = f(r, x) while (x = iter()) isnt iter_end
+			return r
 
 	best = (better) ->
 		(iter) ->
@@ -514,7 +554,7 @@ coffee_mate = do ->
 
 		iterator, enumerate, range, nature_number, prime_number, random_gen, ranged_random_gen,
 
-		map, filter, take, takeWhile, drop, dropWhile, streak,
+		map, filter, take, takeWhile, drop, dropWhile, scanl, streak, reverse,
 
 		concat, zip, cart,
 

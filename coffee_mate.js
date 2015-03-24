@@ -4,7 +4,7 @@
     slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memorize, min, min_index, nature_number, new_iterator, obj, ord, prime_number, random_gen, range, ranged_random_gen, ref, securely, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
+    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memorize, min, min_index, nature_number, new_iterator, obj, ord, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
     function_literal = function(f) {
       var expr;
       expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -17,13 +17,60 @@
       return (new Date).getTime();
     };
     log = (function() {
-      var _log, foo, histories;
+      var dye, factory, got, histories, log_label;
+      dye = (function() {
+        var cavailable, palette;
+        cavailable = (typeof process !== "undefined" && process !== null) && !process.env.NODE_DISABLE_COLORS;
+        palette = {
+          bold: '\x1B[0;1m',
+          red: '\x1B[0;31m',
+          green: '\x1B[0;32m',
+          yellow: '\x1B[0;33m',
+          blue: '\x1B[0;34m',
+          bold_grey: '\x1B[1;30m'
+        };
+        if (!cavailable) {
+          return function(color) {
+            return function(s) {
+              return s;
+            };
+          };
+        } else {
+          return function(color) {
+            return function(s) {
+              return "" + palette[color] + s + '\x1B[0m';
+            };
+          };
+        }
+      })();
+      log_label = (function() {
+        var flag_palette, op_flag;
+        flag_palette = {
+          '#': 'bold_grey',
+          'I': 'green',
+          'E': 'red',
+          'W': 'yellow'
+        };
+        op_flag = function(op) {
+          if (op === 'log') {
+            return '#';
+          } else {
+            return op[0].toUpperCase();
+          }
+        };
+        return function(op) {
+          var flag;
+          flag = op_flag(op);
+          return dye(flag_palette[flag])(flag);
+        };
+      })();
       histories = [];
-      foo = function(op) {
+      factory = function(op) {
+        var prefix;
+        prefix = "" + (dye('bold_grey')('#')) + (log_label(op));
         return function() {
-          var args, ball, eval_result, expr, f, l, label, len1, start_time, time_used;
+          var args, ball, eval_result, expr, f, l, len1, start_time, time_used;
           args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-          label = "#" + (op === 'log' ? '#' : op[0].toUpperCase());
           ball = [];
           for (l = 0, len1 = args.length; l < len1; l++) {
             f = args[l];
@@ -32,12 +79,12 @@
               start_time = time_now();
               eval_result = f();
               time_used = time_now() - start_time;
-              ball.push(label + " " + expr + " ==>", f());
+              ball.push(prefix + " " + (dye('green')(expr)) + " " + (dye('bold_grey')('==>')), f());
               if (time_used > 0) {
-                ball.push("[" + time_used + "ms]");
+                ball.push(dye('yellow')("[" + time_used + "ms]"));
               }
             } else {
-              ball.push("" + label, f);
+              ball.push("" + prefix, f);
             }
           }
           console[op].apply(console, ball);
@@ -48,12 +95,12 @@
           return null;
         };
       };
-      _log = foo('log');
-      _log.histories = histories;
-      _log.info = foo('info');
-      _log.warn = foo('warn');
-      _log.error = _log.err = foo('error');
-      return _log;
+      got = factory('log');
+      got.histories = histories;
+      got.info = factory('info');
+      got.warn = factory('warn');
+      got.error = got.err = factory('error');
+      return got;
     })();
     assert = function(f, msg) {
       var ref;
@@ -427,47 +474,50 @@
       return new_iterator((function() {
         return ++i;
       }), (function() {
-        return "NatureNumberIterator: " + (i + 1);
+        return "Iterator: " + (i + 1) + ", " + (i + 2) + " ...";
       }));
     };
     range = function() {
       var args, i, start, step, stop;
       args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
       if (args.length === 0) {
-        i = -1;
-        return function() {
-          return ++i;
-        };
+        return nature_number();
       } else if (args.length === 1) {
         stop = args[0];
         i = -1;
-        return function() {
+        return new_iterator((function() {
           if (++i < stop) {
             return i;
           } else {
             return iter_end;
           }
-        };
+        }), (function() {
+          return "Iterator: " + (i + 1) + ", " + (i + 2) + " until " + stop;
+        }));
       } else if (args.length === 2) {
         start = args[0], stop = args[1];
         if (start < stop) {
           i = start - 1;
-          return function() {
+          return new_iterator((function() {
             if (++i < stop) {
               return i;
             } else {
               return iter_end;
             }
-          };
+          }), (function() {
+            return "Iterator: " + (i + 1) + ", " + (i + 2) + " until " + stop;
+          }));
         } else {
           i = start + 1;
-          return function() {
+          return new_iterator((function() {
             if (--i > stop) {
               return i;
             } else {
               return iter_end;
             }
-          };
+          }), (function() {
+            return "Iterator: " + (i - 1) + ", " + (i - 2) + " until " + stop;
+          }));
         }
       } else {
         start = args[0], stop = args[1], step = args[2];
@@ -476,21 +526,25 @@
         }
         i = start - step;
         if (start < stop) {
-          return function() {
+          return new_iterator((function() {
             if ((i += step) < stop) {
               return i;
             } else {
               return iter_end;
             }
-          };
+          }), (function() {
+            return "Iterator: " + (i + step) + ", " + (i + step + step) + " until " + stop;
+          }));
         } else {
-          return function() {
+          return new_iterator((function() {
             if ((i += step) > stop) {
               return i;
             } else {
               return iter_end;
             }
-          };
+          }), (function() {
+            return "Iterator: " + (i + step) + ", " + (i + step + step) + " until " + stop;
+          }));
         }
       }
     };
@@ -506,7 +560,7 @@
     iterate = function(ls, replaced_end) {
       var i;
       i = -1;
-      return function() {
+      return new_iterator(function() {
         i += 1;
         if (i < ls.length) {
           if (ls[i] === iter_end) {
@@ -520,7 +574,7 @@
         } else {
           return iter_end;
         }
-      };
+      });
     };
     iterator = function(iterable, replaced_end) {
       if (typeof iterable === 'function') {
@@ -556,14 +610,14 @@
       } else {
         keys = Object.keys(it);
         i = -1;
-        return function() {
+        return new_iterator(function() {
           var k;
           if (++i < keys.length) {
             return [(k = keys[i]), it[k]];
           } else {
             return iter_end;
           }
-        };
+        });
       }
     };
     take = function(n) {
@@ -572,13 +626,13 @@
           var c;
           iter = iterator(iter);
           c = -1;
-          return function() {
+          return new_iterator(function() {
             if (++c < n) {
               return iter();
             } else {
               return iter_end;
             }
-          };
+          });
         };
       } else {
         return takeWhile(n);
@@ -589,14 +643,14 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return function() {
+        return new_iterator(function() {
           var x;
           if ((x = iter()) !== iter_end && ok(x)) {
             return x;
           } else {
             return iter_end;
           }
-        };
+        });
       };
     };
     drop = function(n) {
@@ -634,11 +688,11 @@
         while (ok(x = iter()) && x !== iter_end) {
           null;
         }
-        return function() {
-          var _x, ref1;
-          ref1 = [x, iter()], _x = ref1[0], x = ref1[1];
-          return _x;
-        };
+        return new_iterator(function() {
+          var prevx, ref1;
+          ref1 = [x, iter()], prevx = ref1[0], x = ref1[1];
+          return prevx;
+        });
       };
     };
     map = function(f) {
@@ -646,14 +700,14 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return function() {
+        return new_iterator(function() {
           var x;
           if ((x = iter()) !== iter_end) {
             return f(x);
           } else {
             return iter_end;
           }
-        };
+        });
       };
     };
     filter = function(ok) {
@@ -661,25 +715,26 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return function() {
+        return new_iterator(function() {
           var x;
           while (!ok(x = iter()) && x !== iter_end) {
             null;
           }
           return x;
-        };
+        });
       };
     };
-    foldl = function(f, r) {
+    scanl = function(f, r) {
       return function(iter) {
-        var x;
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        while ((x = iter()) !== iter_end) {
-          r = f(r, x);
-        }
-        return r;
+        return new_iterator(function() {
+          var got, x;
+          got = r;
+          r = (x = iter()) !== iter_end ? f(r, x) : iter_end;
+          return got;
+        });
       };
     };
     streak = function(n) {
@@ -689,7 +744,7 @@
           iter = iterator(iter);
         }
         buf = [];
-        return function() {
+        return new_iterator(function() {
           var x;
           if ((x = iter()) === iter_end) {
             return iter_end;
@@ -699,8 +754,13 @@
             buf.shift(1);
           }
           return buf.slice(0);
-        };
+        });
       };
+    };
+    reverse = function(iter) {
+      var ls;
+      ls = typeof iter === 'function' ? list(iter) : copy(iter);
+      return iterator(ls.reverse());
     };
     concat = function() {
       var current_index, i, iter, iters, l, len1, ref1;
@@ -712,7 +772,7 @@
         }
       }
       ref1 = [iters[0], 0], iter = ref1[0], current_index = ref1[1];
-      return function() {
+      return new_iterator(function() {
         var x;
         if ((x = iter()) !== iter_end) {
           return x;
@@ -722,7 +782,7 @@
         } else {
           return iter_end;
         }
-      };
+      });
     };
     zip = function() {
       var finished, i, iter, iters, l, len1;
@@ -743,7 +803,7 @@
           return any_is_end(iterator(ls, another_end));
         };
       })();
-      return function() {
+      return new_iterator(function() {
         var next;
         next = (function() {
           var len2, o, results;
@@ -759,7 +819,7 @@
         } else {
           return next;
         }
-      };
+      });
     };
     cart = (function() {
       var apply_vector, inc_vector;
@@ -817,7 +877,7 @@
           }
           return results;
         })();
-        return function() {
+        return new_iterator(function() {
           var r;
           if (v[0] < limits[0]) {
             r = get_value(v);
@@ -826,7 +886,7 @@
           } else {
             return iter_end;
           }
-        };
+        });
       };
     })();
     list = function(it) {
@@ -860,6 +920,18 @@
         value: iter_brk
       }
     });
+    foldl = function(f, r) {
+      return function(iter) {
+        var x;
+        if (typeof iter !== 'function') {
+          iter = iterator(iter);
+        }
+        while ((x = iter()) !== iter_end) {
+          r = f(r, x);
+        }
+        return r;
+      };
+    };
     best = function(better) {
       return function(iter) {
         var it, r;
@@ -1050,7 +1122,9 @@
       takeWhile: takeWhile,
       drop: drop,
       dropWhile: dropWhile,
+      scanl: scanl,
       streak: streak,
+      reverse: reverse,
       concat: concat,
       zip: zip,
       cart: cart,
