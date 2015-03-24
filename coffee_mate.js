@@ -4,7 +4,7 @@
     slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cart, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memorize, min, min_index, nature_number, new_iterator, obj, ord, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
+    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cartProd, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memoize, min, min_index, nature_number, new_iterator, obj, ord, pretty_iterator, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, show_iter, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
     function_literal = function(f) {
       var expr;
       expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -448,22 +448,42 @@
     };
     iter_end = new Object;
     iter_brk = new Object;
-    new_iterator = function(f, show) {
-      if (show == null) {
-        show = (function() {
-          return "Iterator";
-        });
-      }
-      f.toString = show;
-      f.next = function() {
+    pretty_iterator = function(show, it) {
+      it.toString = show;
+      it.next = function() {
         var r;
-        r = f();
+        r = it();
         return {
           value: r,
           done: r === iter_end
         };
       };
-      return f;
+      return it;
+    };
+    new_iterator = function(init, next) {
+      var status;
+      status = init;
+      return pretty_iterator((function() {
+        return "Iterator: " + (json(status)) + " ...";
+      }), function() {
+        var last;
+        last = status;
+        status = next(status);
+        return last;
+      });
+    };
+    show_iter = function(it) {
+      var s;
+      s = it.toString();
+      if (it.next != null) {
+        if (s.startsWith('function')) {
+          return 'Iterator';
+        } else {
+          return s;
+        }
+      } else {
+        return '???';
+      }
     };
     nature_number = function(first) {
       var i;
@@ -471,11 +491,11 @@
         first = 0;
       }
       i = first - 1;
-      return new_iterator((function() {
+      return pretty_iterator((function() {
+        return "Counter: " + (i + 1) + ", " + (i + 2) + " ...";
+      }), function() {
         return ++i;
-      }), (function() {
-        return "Iterator: " + (i + 1) + ", " + (i + 2) + " ...";
-      }));
+      });
     };
     range = function() {
       var args, i, start, step, stop;
@@ -485,39 +505,39 @@
       } else if (args.length === 1) {
         stop = args[0];
         i = -1;
-        return new_iterator((function() {
+        return pretty_iterator((function() {
+          return "Counter: " + (i + 1) + ", " + (i + 2) + " until " + stop;
+        }), function() {
           if (++i < stop) {
             return i;
           } else {
             return iter_end;
           }
-        }), (function() {
-          return "Iterator: " + (i + 1) + ", " + (i + 2) + " until " + stop;
-        }));
+        });
       } else if (args.length === 2) {
         start = args[0], stop = args[1];
         if (start < stop) {
           i = start - 1;
-          return new_iterator((function() {
+          return pretty_iterator((function() {
+            return "Counter: " + (i + 1) + ", " + (i + 2) + " until " + stop;
+          }), function() {
             if (++i < stop) {
               return i;
             } else {
               return iter_end;
             }
-          }), (function() {
-            return "Iterator: " + (i + 1) + ", " + (i + 2) + " until " + stop;
-          }));
+          });
         } else {
           i = start + 1;
-          return new_iterator((function() {
+          return pretty_iterator((function() {
+            return "Counter: " + (i - 1) + ", " + (i - 2) + " until " + stop;
+          }), function() {
             if (--i > stop) {
               return i;
             } else {
               return iter_end;
             }
-          }), (function() {
-            return "Iterator: " + (i - 1) + ", " + (i - 2) + " until " + stop;
-          }));
+          });
         }
       } else {
         start = args[0], stop = args[1], step = args[2];
@@ -526,25 +546,25 @@
         }
         i = start - step;
         if (start < stop) {
-          return new_iterator((function() {
+          return pretty_iterator((function() {
+            return "Counter: " + (i + step) + ", " + (i + step + step) + " until " + stop;
+          }), function() {
             if ((i += step) < stop) {
               return i;
             } else {
               return iter_end;
             }
-          }), (function() {
-            return "Iterator: " + (i + step) + ", " + (i + step + step) + " until " + stop;
-          }));
+          });
         } else {
-          return new_iterator((function() {
+          return pretty_iterator((function() {
+            return "Counter: " + (i + step) + ", " + (i + step + step) + " until " + stop;
+          }), function() {
             if ((i += step) > stop) {
               return i;
             } else {
               return iter_end;
             }
-          }), (function() {
-            return "Iterator: " + (i + step) + ", " + (i + step + step) + " until " + stop;
-          }));
+          });
         }
       }
     };
@@ -560,7 +580,9 @@
     iterate = function(ls, replaced_end) {
       var i;
       i = -1;
-      return new_iterator(function() {
+      return pretty_iterator((function() {
+        return "Enumerator: " + (ls.join(', '));
+      }), function() {
         i += 1;
         if (i < ls.length) {
           if (ls[i] === iter_end) {
@@ -596,10 +618,15 @@
     });
     enumerate = function(it, replaced_end) {
       var i, keys;
-      if (typeof it !== 'function') {
-        it = iterator(it);
-      }
       if (typeof it === 'function') {
+        return zip((function() {
+          var i;
+          i = -1;
+          return function() {
+            return ++i;
+          };
+        })(), it);
+      } else if (it instanceof Array) {
         return zip((function() {
           var i;
           i = -1;
@@ -610,7 +637,18 @@
       } else {
         keys = Object.keys(it);
         i = -1;
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          var k, v;
+          return "Enumerator: " + (((function() {
+            var results;
+            results = [];
+            for (k in it) {
+              v = it[k];
+              results.push("[" + k + "," + v + "]");
+            }
+            return results;
+          })()).join(', '));
+        }), function() {
           var k;
           if (++i < keys.length) {
             return [(k = keys[i]), it[k]];
@@ -626,7 +664,9 @@
           var c;
           iter = iterator(iter);
           c = -1;
-          return new_iterator(function() {
+          return pretty_iterator((function() {
+            return "take(" + n + ") " + (show_iter(iter));
+          }), function() {
             if (++c < n) {
               return iter();
             } else {
@@ -643,7 +683,9 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "takeWhile(...) " + (show_iter(iter));
+        }), function() {
           var x;
           if ((x = iter()) !== iter_end && ok(x)) {
             return x;
@@ -688,7 +730,9 @@
         while (ok(x = iter()) && x !== iter_end) {
           null;
         }
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "dropWhile(...) " + (show_iter(iter));
+        }), function() {
           var prevx, ref1;
           ref1 = [x, iter()], prevx = ref1[0], x = ref1[1];
           return prevx;
@@ -700,7 +744,9 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "map(...) " + (show_iter(iter));
+        }), function() {
           var x;
           if ((x = iter()) !== iter_end) {
             return f(x);
@@ -715,7 +761,9 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "filter(...) " + (show_iter(iter));
+        }), function() {
           var x;
           while (!ok(x = iter()) && x !== iter_end) {
             null;
@@ -729,7 +777,9 @@
         if (typeof iter !== 'function') {
           iter = iterator(iter);
         }
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "scanl(...) " + (show_iter(iter));
+        }), function() {
           var got, x;
           got = r;
           r = (x = iter()) !== iter_end ? f(r, x) : iter_end;
@@ -744,7 +794,9 @@
           iter = iterator(iter);
         }
         buf = [];
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          return "streak(" + n + ") " + (show_iter(iter));
+        }), function() {
           var x;
           if ((x = iter()) === iter_end) {
             return iter_end;
@@ -772,7 +824,18 @@
         }
       }
       ref1 = [iters[0], 0], iter = ref1[0], current_index = ref1[1];
-      return new_iterator(function() {
+      return pretty_iterator((function() {
+        var it;
+        return "concat " + (((function() {
+          var len2, o, results;
+          results = [];
+          for (o = 0, len2 = iters.length; o < len2; o++) {
+            it = iters[o];
+            results.push(show_iter(it));
+          }
+          return results;
+        })()).join(', '));
+      }), function() {
         var x;
         if ((x = iter()) !== iter_end) {
           return x;
@@ -803,7 +866,18 @@
           return any_is_end(iterator(ls, another_end));
         };
       })();
-      return new_iterator(function() {
+      return pretty_iterator((function() {
+        var it;
+        return "zip " + (((function() {
+          var len2, o, results;
+          results = [];
+          for (o = 0, len2 = iters.length; o < len2; o++) {
+            it = iters[o];
+            results.push(show_iter(it));
+          }
+          return results;
+        })()).join(', '));
+      }), function() {
         var next;
         next = (function() {
           var len2, o, results;
@@ -821,7 +895,7 @@
         }
       });
     };
-    cart = (function() {
+    cartProd = (function() {
       var apply_vector, inc_vector;
       inc_vector = function(limits) {
         var len_minus_1;
@@ -877,7 +951,18 @@
           }
           return results;
         })();
-        return new_iterator(function() {
+        return pretty_iterator((function() {
+          var it;
+          return "cartProd " + (((function() {
+            var l, len1, results;
+            results = [];
+            for (l = 0, len1 = iters.length; l < len1; l++) {
+              it = iters[l];
+              results.push(show_iter(it));
+            }
+            return results;
+          })()).join(', '));
+        }), function() {
           var r;
           if (v[0] < limits[0]) {
             r = get_value(v);
@@ -1010,7 +1095,7 @@
         }));
       }));
     };
-    memorize = function(f, get_key) {
+    memoize = function(f, get_key) {
       var cache;
       if (get_key == null) {
         get_key = (function() {
@@ -1111,6 +1196,8 @@
       uri_decoder: uri_decoder,
       iterator: iterator,
       enumerate: enumerate,
+      new_iterator: new_iterator,
+      pretty_iterator: pretty_iterator,
       range: range,
       nature_number: nature_number,
       prime_number: prime_number,
@@ -1127,7 +1214,7 @@
       reverse: reverse,
       concat: concat,
       zip: zip,
-      cart: cart,
+      cartProd: cartProd,
       list: list,
       last: last,
       foldl: foldl,
@@ -1137,7 +1224,7 @@
       foreach: foreach,
       church: church,
       Y: Y,
-      memorize: memorize,
+      memoize: memoize,
       square: square,
       cube: cube,
       abs: abs,

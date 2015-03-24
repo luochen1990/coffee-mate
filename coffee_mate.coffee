@@ -228,16 +228,30 @@ coffee_mate = do ->
 	iter_end = new Object #can be used outside the lib via iterator.end
 	iter_brk = new Object #can be used outside the lib via foreach.break
 
-	new_iterator = (f, show = (-> "Iterator")) ->
-		f.toString = show
-		f.next = ->
-			r = f()
+	pretty_iterator = (show, it) ->
+		it.toString = show
+		it.next = ->
+			r = it()
 			{value: r, done: r == iter_end}
-		return f
+		return it
+
+	new_iterator = (init, next) ->
+		status = init
+		pretty_iterator (-> "Iterator: #{json status} ..."), ->
+			last = status
+			status = next status
+			return last
+
+	show_iter = (it) ->
+		s = it.toString()
+		if it.next?
+			if s.startsWith('function') then 'Iterator' else s
+		else
+			'???'
 
 	nature_number = (first = 0) ->
-		i = first-1
-		new_iterator (-> ++i), (-> "Iterator: #{i + 1}, #{i + 2} ...")
+		i = first - 1
+		pretty_iterator (-> "Counter: #{i + 1}, #{i + 2} ..."), -> ++i
 
 	range = (args...) ->
 		if args.length == 0
@@ -245,30 +259,35 @@ coffee_mate = do ->
 		else if args.length == 1
 			[stop] = args
 			i = -1
-			new_iterator (-> if ++i < stop then i else iter_end), (-> "Iterator: #{i + 1}, #{i + 2} until #{stop}")
+			pretty_iterator (-> "Counter: #{i + 1}, #{i + 2} until #{stop}"), ->
+				if ++i < stop then i else iter_end
 		else if args.length == 2
 			[start, stop] = args
 			if start < stop
 				i = start - 1
-				new_iterator (-> if ++i < stop then i else iter_end), (-> "Iterator: #{i + 1}, #{i + 2} until #{stop}")
+				pretty_iterator (-> "Counter: #{i + 1}, #{i + 2} until #{stop}"), ->
+					if ++i < stop then i else iter_end
 			else
 				i = start + 1
-				new_iterator (-> if --i > stop then i else iter_end), (-> "Iterator: #{i - 1}, #{i - 2} until #{stop}")
+				pretty_iterator (-> "Counter: #{i - 1}, #{i - 2} until #{stop}"), ->
+					if --i > stop then i else iter_end
 		else
 			[start, stop, step] = args
 			throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE' if stop != start and (stop - start) * step < 0
 			i = start - step
 			if start < stop
-				new_iterator (-> if (i += step) < stop then i else iter_end), (-> "Iterator: #{i + step}, #{i + step + step} until #{stop}")
+				pretty_iterator (-> "Counter: #{i + step}, #{i + step + step} until #{stop}"), ->
+					if (i += step) < stop then i else iter_end
 			else
-				new_iterator (-> if (i += step) > stop then i else iter_end), (-> "Iterator: #{i + step}, #{i + step + step} until #{stop}")
+				pretty_iterator (-> "Counter: #{i + step}, #{i + step + step} until #{stop}"), ->
+					if (i += step) > stop then i else iter_end
 
 	prime_number = ->
 		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
 
 	iterate = (ls, replaced_end) ->
 		i = -1
-		new_iterator ->
+		pretty_iterator (-> "Enumerator: #{ls.join(', ')}"), ->
 			i += 1
 			if i < ls.length
 				if ls[i] is iter_end
@@ -294,14 +313,15 @@ coffee_mate = do ->
 			enumerable: false
 			value: iter_end
 
-	enumerate = (it, replaced_end) -> # iterator with index(or key for object)
-		it = iterator(it) if typeof it isnt 'function'
+	enumerate = (it, replaced_end) -> # iterator with index(key for object)
 		if typeof it is 'function'
+			return zip((-> i = -1; (-> ++i))(), it)
+		else if it instanceof Array
 			return zip((-> i = -1; (-> ++i))(), it)
 		else
 			keys = Object.keys(it)
 			i = -1
-			new_iterator ->
+			pretty_iterator (-> "Enumerator: #{("[#{k},#{v}]" for k, v of it).join(', ')}"), ->
 				if ++i < keys.length then [(k = keys[i]), it[k]] else iter_end
 
 	# Iterator Decorators
@@ -310,14 +330,15 @@ coffee_mate = do ->
 			(iter) ->
 				iter = iterator(iter)
 				c = -1
-				new_iterator -> if ++c < n then iter() else iter_end
+				pretty_iterator (-> "take(#{n}) #{show_iter iter}"), ->
+					if ++c < n then iter() else iter_end
 		else
 			takeWhile(n)
 
 	takeWhile = (ok) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			new_iterator ->
+			pretty_iterator (-> "takeWhile(...) #{show_iter iter}"), ->
 				if (x = iter()) isnt iter_end and ok(x) then x else iter_end
 
 	drop = (n) ->
@@ -334,27 +355,27 @@ coffee_mate = do ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
 			null while ok(x = iter()) and x isnt iter_end
-			new_iterator ->
+			pretty_iterator (-> "dropWhile(...) #{show_iter iter}"), ->
 				[prevx, x] = [x, iter()]
 				return prevx
 
 	map = (f) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			new_iterator ->
+			pretty_iterator (-> "map(...) #{show_iter iter}"), ->
 				if (x = iter()) isnt iter_end then f(x) else iter_end
 
 	filter = (ok) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			new_iterator ->
+			pretty_iterator (-> "filter(...) #{show_iter iter}"), ->
 				null while not ok(x = iter()) and x isnt iter_end
 				return x
 
 	scanl = (f, r) ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
-			new_iterator ->
+			pretty_iterator (-> "scanl(...) #{show_iter iter}"), ->
 				got = r
 				r = if (x = iter()) isnt iter_end then f(r, x) else iter_end
 				return got
@@ -363,7 +384,7 @@ coffee_mate = do ->
 		(iter) ->
 			iter = iterator(iter) if typeof iter isnt 'function'
 			buf = []
-			new_iterator ->
+			pretty_iterator (-> "streak(#{n}) #{show_iter iter}"), ->
 				return iter_end if (x = iter()) is iter_end
 				buf.push(x)
 				buf.shift(1) if buf.length > n
@@ -377,7 +398,7 @@ coffee_mate = do ->
 	concat = (iters...) ->
 		iters[i] = iterator(iter) for iter, i in iters when typeof iter isnt 'function'
 		[iter, current_index] = [iters[0], 0]
-		new_iterator ->
+		pretty_iterator (-> "concat #{(show_iter it for it in iters).join(', ')}"), ->
 			if (x = iter()) isnt iter_end
 				return x
 			else if (++current_index < iters.length)
@@ -392,14 +413,14 @@ coffee_mate = do ->
 			another_end = new Object
 			any_is_end = any (x) -> x is another_end
 			(ls) -> any_is_end iterator(ls, another_end)
-		new_iterator ->
+		pretty_iterator (-> "zip #{(show_iter it for it in iters).join(', ')}"), ->
 			next = (iter() for iter in iters)
 			if finished(next)
 				return iter_end
 			else
 				return next
 
-	cart = do ->
+	cartProd = do ->
 		inc_vector = (limits) ->
 			len_minus_1 = limits.length - 1
 			(vec) ->
@@ -425,10 +446,10 @@ coffee_mate = do ->
 			inc = inc_vector(limits)
 			get_value = apply_vector(sets)
 			v = (0 for i in [0...sets.length])
-			new_iterator ->
+			pretty_iterator (-> "cartProd #{(show_iter it for it in iters).join(', ')}"), ->
 				if v[0] < limits[0] then (r = get_value v; inc v; r) else iter_end
 
-	#cart = (sets...) ->
+	#cartProd = (sets...) ->
 	#	sets = (list(set) for set in sets)
 	#	rst = []
 	#	len = sets.length
@@ -501,7 +522,7 @@ coffee_mate = do ->
 	Y = (f) -> #the Y combinator
 		((x) -> (x x)) ((x) -> (f ((y) -> ((x x) y))))
 
-	memorize = (f, get_key = ((args...) -> json(args))) ->
+	memoize = (f, get_key = ((args...) -> json(args))) ->
 		cache = {}
 		(args...) ->
 			key = get_key(args...)
@@ -552,15 +573,17 @@ coffee_mate = do ->
 
 		uri_encoder, uri_decoder,
 
-		iterator, enumerate, range, nature_number, prime_number, random_gen, ranged_random_gen,
+		iterator, enumerate, new_iterator, pretty_iterator,
+
+		range, nature_number, prime_number, random_gen, ranged_random_gen,
 
 		map, filter, take, takeWhile, drop, dropWhile, scanl, streak, reverse,
 
-		concat, zip, cart,
+		concat, zip, cartProd,
 
 		list, last, foldl, best, all, any, foreach,
 
-		church, Y, memorize,
+		church, Y, memoize,
 
 		square, cube, abs, floor, ceil, sum, max, min, max_index, min_index,
 	}
