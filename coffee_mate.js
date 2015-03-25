@@ -4,7 +4,7 @@
     slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cartProd, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memoize, min, min_index, nature_number, new_iterator, next_permutation, obj, ord, permutation_gen, pretty_iterator, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, show_iter, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
+    var Y, abs, accept_multi_or_array, all, any, assert, assertEq, assertEqOn, best, bool, cartProd, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memoize, min, min_index, nature_number, new_iterator, next_permutation, obj, ord, permutation_gen, pretty_iterator, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, show_iter, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
     function_literal = function(f) {
       var expr;
       expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -103,13 +103,48 @@
       return got;
     })();
     assert = function(f, msg) {
-      var ref;
+      var e, ref;
       if (!(f instanceof Function)) {
         ref = [msg, f], f = ref[0], msg = ref[1];
       }
-      if (!f()) {
-        throw "Assertion Failed: " + (msg != null ? msg : function_literal(f));
+      try {
+        if (!f()) {
+          throw Error("Assertion " + (msg != null ? msg : function_literal(f)) + " Failed!");
+        }
+      } catch (_error) {
+        e = _error;
+        throw Error("Assertion " + (msg != null ? msg : function_literal(f)) + " Unknown:\n" + e);
       }
+    };
+    assertEq = function(l, r) {
+      var e, lv, rv;
+      try {
+        lv = l();
+        rv = r();
+      } catch (_error) {
+        e = _error;
+        throw Error("Equation Between " + (function_literal(l)) + " And " + (function_literal(r)) + " Unknown:\n" + e);
+      }
+      if (lv !== rv) {
+        throw Error("Equation Failed:\n\t" + (function_literal(l)) + " IS " + lv + " BUT\n\t" + (function_literal(r)) + " IS " + rv + ".");
+      }
+    };
+    assertEqOn = function(f) {
+      return function(l, r) {
+        var e, flv, frv, lv, rv;
+        try {
+          lv = l();
+          rv = r();
+          flv = f(lv);
+          frv = f(rv);
+        } catch (_error) {
+          e = _error;
+          throw Error("MAPPED Equation Between " + (function_literal(l)) + " And " + (function_literal(r)) + " Unknown:\n" + e);
+        }
+        if (flv !== frv) {
+          throw Error("Equation Failed:\n\t" + (function_literal(l)) + " IS " + lv + " AND MAPPED TO " + flv + " BUT\n\t" + (function_literal(r)) + " IS " + rv + " AND MAPPED TO " + frv + ".");
+        }
+      };
     };
     securely = function(f) {
       return function() {
@@ -1210,6 +1245,8 @@
     return {
       log: log,
       assert: assert,
+      assertEq: assertEq,
+      assertEqOn: assertEqOn,
       dict: dict,
       copy: copy,
       deepcopy: deepcopy,

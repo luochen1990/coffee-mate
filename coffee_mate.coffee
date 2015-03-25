@@ -67,7 +67,30 @@ coffee_mate = do ->
 
 	assert = (f, msg) ->
 		[f, msg] = [msg, f] if f not instanceof Function
-		throw "Assertion Failed: #{msg ? function_literal(f)}" if not f()
+		try
+			throw Error "Assertion #{msg ? function_literal(f)} Failed!" if not f()
+		catch e
+			throw Error "Assertion #{msg ? function_literal(f)} Unknown:\n#{e}"
+
+	assertEq = (l, r) ->
+		try
+			lv = l()
+			rv = r()
+		catch e
+			throw Error "Equation Between #{function_literal(l)} And #{function_literal(r)} Unknown:\n#{e}"
+		if lv isnt rv
+			throw Error "Equation Failed:\n\t#{function_literal(l)} IS #{lv} BUT\n\t#{function_literal(r)} IS #{rv}."
+
+	assertEqOn = (f) -> (l, r) ->
+		try
+			lv = l()
+			rv = r()
+			flv = f(lv)
+			frv = f(rv)
+		catch e
+			throw Error "MAPPED Equation Between #{function_literal(l)} And #{function_literal(r)} Unknown:\n#{e}"
+		if flv isnt frv
+			throw Error "Equation Failed:\n\t#{function_literal(l)} IS #{lv} AND MAPPED TO #{flv} BUT\n\t#{function_literal(r)} IS #{rv} AND MAPPED TO #{frv}."
 
 	securely = (f) -> # ensure a function not to modify it's arguments
 		(args...) ->
@@ -589,7 +612,7 @@ coffee_mate = do ->
 ########################### exports ##############################
 
 	return {
-		log, assert, dict, copy, deepcopy, securely,
+		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely,
 
 		int, float, bool, str, hex, ord, chr, json, obj,
 
