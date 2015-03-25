@@ -285,6 +285,28 @@ coffee_mate = do ->
 	prime_number = ->
 		filter((x) -> all((p) -> x % p != 0) takeWhile((p) -> p * p <= x) range(2, Infinity)) range(2, Infinity)
 
+	next_permutation = (x) ->
+		l = x.length - 1
+		while (l >= 1 and x[l] <= x[l - 1])
+			l--
+
+		if (l != 0)
+			m = x.length - 1
+			while(m > l - 1 and x[m] <= x[l - 1])
+				m--
+			[x[m], x[l - 1]] = [x[l - 1], x[m]]
+
+		r = x.length - 1
+		while(l < r)
+			[x[l], x[r]] = [x[r], x[l]]
+			l++
+			r--
+		return x
+
+	permutation_gen = (arr) ->
+		a = -> new_iterator arr, securely next_permutation
+		concat [copy(arr)], takeWhile((ls) -> json(ls) != json(arr)) drop(1) a()
+
 	iterate = (ls, replaced_end) ->
 		i = -1
 		pretty_iterator (-> "Enumerator: #{ls.join(', ')}"), ->
@@ -567,7 +589,7 @@ coffee_mate = do ->
 ########################### exports ##############################
 
 	return {
-		log, assert, dict, copy, deepcopy,
+		log, assert, dict, copy, deepcopy, securely,
 
 		int, float, bool, str, hex, ord, chr, json, obj,
 
@@ -575,7 +597,7 @@ coffee_mate = do ->
 
 		iterator, enumerate, new_iterator, pretty_iterator,
 
-		range, nature_number, prime_number, random_gen, ranged_random_gen,
+		range, nature_number, prime_number, random_gen, ranged_random_gen, permutation_gen,
 
 		map, filter, take, takeWhile, drop, dropWhile, scanl, streak, reverse,
 
@@ -585,7 +607,7 @@ coffee_mate = do ->
 
 		church, Y, memoize,
 
-		square, cube, abs, floor, ceil, sum, max, min, max_index, min_index,
+		square, cube, abs, floor, ceil, sum, max, min, max_index, min_index, next_permutation,
 	}
 
 if window?

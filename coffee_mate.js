@@ -4,7 +4,7 @@
     slice = [].slice;
 
   coffee_mate = (function() {
-    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cartProd, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memoize, min, min_index, nature_number, new_iterator, obj, ord, pretty_iterator, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, show_iter, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
+    var Y, abs, accept_multi_or_array, all, any, assert, best, bool, cartProd, ceil, chr, church, concat, copy, cube, deepcopy, dict, drop, dropWhile, enumerate, filter, float, floor, foldl, foreach, function_literal, hex, int, iter_brk, iter_end, iterate, iterator, json, last, list, log, map, max, max_index, memoize, min, min_index, nature_number, new_iterator, next_permutation, obj, ord, permutation_gen, pretty_iterator, prime_number, random_gen, range, ranged_random_gen, ref, reverse, scanl, securely, show_iter, square, str, streak, sum, take, takeWhile, time_now, uri_decoder, uri_encoder, zip;
     function_literal = function(f) {
       var expr;
       expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -69,11 +69,11 @@
         var prefix;
         prefix = "" + (dye('bold_grey')('#')) + (log_label(op));
         return function() {
-          var args, ball, eval_result, expr, f, l, len1, start_time, time_used;
+          var args, ball, eval_result, expr, f, len1, o, start_time, time_used;
           args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
           ball = [];
-          for (l = 0, len1 = args.length; l < len1; l++) {
-            f = args[l];
+          for (o = 0, len1 = args.length; o < len1; o++) {
+            f = args[o];
             if (typeof f === 'function') {
               expr = function_literal(f);
               start_time = time_now();
@@ -120,10 +120,10 @@
       };
     };
     dict = function(pairs) {
-      var d, k, l, len1, ref, v;
+      var d, k, len1, o, ref, v;
       d = {};
-      for (l = 0, len1 = pairs.length; l < len1; l++) {
-        ref = pairs[l], k = ref[0], v = ref[1];
+      for (o = 0, len1 = pairs.length; o < len1; o++) {
+        ref = pairs[o], k = ref[0], v = ref[1];
         d[k] = v;
       }
       return d;
@@ -137,10 +137,10 @@
         }
         if (root instanceof Array) {
           r = (function() {
-            var l, len1, results;
+            var len1, o, results;
             results = [];
-            for (l = 0, len1 = root.length; l < len1; l++) {
-              v = root[l];
+            for (o = 0, len1 = root.length; o < len1; o++) {
+              v = root[o];
               results.push(cp(v, dep - 1));
             }
             return results;
@@ -312,11 +312,11 @@
           var init;
           init = new Object;
           return function(equal) {
-            var i, j, l, len1, len2, o, t, x;
+            var i, j, len1, len2, o, q, t, x;
             i = 0;
             t = init;
             if (equal == null) {
-              for (j = l = 0, len1 = this.length; l < len1; j = ++l) {
+              for (j = o = 0, len1 = this.length; o < len1; j = ++o) {
                 x = this[j];
                 if (!(x !== t)) {
                   continue;
@@ -325,7 +325,7 @@
                 i += 1;
               }
             } else {
-              for (j = o = 0, len2 = this.length; o < len2; j = ++o) {
+              for (j = q = 0, len2 = this.length; q < len2; j = ++q) {
                 x = this[j];
                 if (!(t === init || !equal(x, t))) {
                   continue;
@@ -350,10 +350,10 @@
       extend: {
         enumerable: false,
         value: function() {
-          var base, d, defaults, k, l, len1, v;
+          var base, d, defaults, k, len1, o, v;
           base = arguments[0], defaults = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-          for (l = 0, len1 = defaults.length; l < len1; l++) {
-            d = defaults[l];
+          for (o = 0, len1 = defaults.length; o < len1; o++) {
+            d = defaults[o];
             if (d != null) {
               for (k in d) {
                 v = d[k];
@@ -369,10 +369,10 @@
       update: {
         enumerable: false,
         value: function() {
-          var base, d, k, l, len1, updates, v;
+          var base, d, k, len1, o, updates, v;
           base = arguments[0], updates = 2 <= arguments.length ? slice.call(arguments, 1) : [];
-          for (l = 0, len1 = updates.length; l < len1; l++) {
-            d = updates[l];
+          for (o = 0, len1 = updates.length; o < len1; o++) {
+            d = updates[o];
             if (d != null) {
               for (k in d) {
                 v = d[k];
@@ -408,12 +408,12 @@
         });
       }
       return function(str) {
-        var d, k, l, len1, o, ref1, ref2, ref3, s, v;
+        var d, k, len1, o, q, ref1, ref2, ref3, s, v;
         d = {};
         ref2 = (ref1 = str.match(/[^?=&]+=[^&]*/g)) != null ? ref1 : [];
-        for (l = 0, len1 = ref2.length; l < len1; l++) {
-          s = ref2[l];
-          ref3 = s.match(/([^=]+)=(.*)/), o = ref3.length - 2, k = ref3[o++], v = ref3[o++];
+        for (o = 0, len1 = ref2.length; o < len1; o++) {
+          s = ref2[o];
+          ref3 = s.match(/([^=]+)=(.*)/), q = ref3.length - 2, k = ref3[q++], v = ref3[q++];
           d[decodeURIComponent(k)] = component_unpacker(decodeURIComponent(v));
         }
         return d;
@@ -577,6 +577,36 @@
         })(range(2, Infinity)));
       })(range(2, Infinity));
     };
+    next_permutation = function(x) {
+      var l, m, r, ref1, ref2;
+      l = x.length - 1;
+      while (l >= 1 && x[l] <= x[l - 1]) {
+        l--;
+      }
+      if (l !== 0) {
+        m = x.length - 1;
+        while (m > l - 1 && x[m] <= x[l - 1]) {
+          m--;
+        }
+        ref1 = [x[l - 1], x[m]], x[m] = ref1[0], x[l - 1] = ref1[1];
+      }
+      r = x.length - 1;
+      while (l < r) {
+        ref2 = [x[r], x[l]], x[l] = ref2[0], x[r] = ref2[1];
+        l++;
+        r--;
+      }
+      return x;
+    };
+    permutation_gen = function(arr) {
+      var a;
+      a = function() {
+        return new_iterator(arr, securely(next_permutation));
+      };
+      return concat([copy(arr)], takeWhile(function(ls) {
+        return json(ls) !== json(arr);
+      })(drop(1)(a())));
+    };
     iterate = function(ls, replaced_end) {
       var i;
       i = -1;
@@ -698,12 +728,12 @@
     drop = function(n) {
       if (typeof n === 'number') {
         return function(iter) {
-          var finished, i, l, ref1;
+          var finished, i, o, ref1;
           if (typeof iter !== 'function') {
             iter = iterator(iter);
           }
           finished = false;
-          for (i = l = 0, ref1 = n; 0 <= ref1 ? l < ref1 : l > ref1; i = 0 <= ref1 ? ++l : --l) {
+          for (i = o = 0, ref1 = n; 0 <= ref1 ? o < ref1 : o > ref1; i = 0 <= ref1 ? ++o : --o) {
             finished || (finished = iter() === iter_end);
             if (finished) {
               break;
@@ -815,9 +845,9 @@
       return iterator(ls.reverse());
     };
     concat = function() {
-      var current_index, i, iter, iters, l, len1, ref1;
+      var current_index, i, iter, iters, len1, o, ref1;
       iters = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-      for (i = l = 0, len1 = iters.length; l < len1; i = ++l) {
+      for (i = o = 0, len1 = iters.length; o < len1; i = ++o) {
         iter = iters[i];
         if (typeof iter !== 'function') {
           iters[i] = iterator(iter);
@@ -827,10 +857,10 @@
       return pretty_iterator((function() {
         var it;
         return "concat " + (((function() {
-          var len2, o, results;
+          var len2, q, results;
           results = [];
-          for (o = 0, len2 = iters.length; o < len2; o++) {
-            it = iters[o];
+          for (q = 0, len2 = iters.length; q < len2; q++) {
+            it = iters[q];
             results.push(show_iter(it));
           }
           return results;
@@ -848,9 +878,9 @@
       });
     };
     zip = function() {
-      var finished, i, iter, iters, l, len1;
+      var finished, i, iter, iters, len1, o;
       iters = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-      for (i = l = 0, len1 = iters.length; l < len1; i = ++l) {
+      for (i = o = 0, len1 = iters.length; o < len1; i = ++o) {
         iter = iters[i];
         if (typeof iter !== 'function') {
           iters[i] = iterator(iter);
@@ -869,10 +899,10 @@
       return pretty_iterator((function() {
         var it;
         return "zip " + (((function() {
-          var len2, o, results;
+          var len2, q, results;
           results = [];
-          for (o = 0, len2 = iters.length; o < len2; o++) {
-            it = iters[o];
+          for (q = 0, len2 = iters.length; q < len2; q++) {
+            it = iters[q];
             results.push(show_iter(it));
           }
           return results;
@@ -880,10 +910,10 @@
       }), function() {
         var next;
         next = (function() {
-          var len2, o, results;
+          var len2, q, results;
           results = [];
-          for (o = 0, len2 = iters.length; o < len2; o++) {
-            iter = iters[o];
+          for (q = 0, len2 = iters.length; q < len2; q++) {
+            iter = iters[q];
             results.push(iter());
           }
           return results;
@@ -913,9 +943,9 @@
         var len;
         len = space.length;
         return function(vec) {
-          var i, l, ref1, results;
+          var i, o, ref1, results;
           results = [];
-          for (i = l = 0, ref1 = len; 0 <= ref1 ? l < ref1 : l > ref1; i = 0 <= ref1 ? ++l : --l) {
+          for (i = o = 0, ref1 = len; 0 <= ref1 ? o < ref1 : o > ref1; i = 0 <= ref1 ? ++o : --o) {
             results.push(space[i][vec[i]]);
           }
           return results;
@@ -925,18 +955,18 @@
         var get_value, i, inc, iters, limits, set, sets, v;
         iters = 1 <= arguments.length ? slice.call(arguments, 0) : [];
         sets = (function() {
-          var l, len1, results;
+          var len1, o, results;
           results = [];
-          for (l = 0, len1 = iters.length; l < len1; l++) {
-            set = iters[l];
+          for (o = 0, len1 = iters.length; o < len1; o++) {
+            set = iters[o];
             results.push(list(set));
           }
           return results;
         })();
         limits = (function() {
-          var l, ref1, results;
+          var o, ref1, results;
           results = [];
-          for (i = l = 0, ref1 = sets.length; 0 <= ref1 ? l < ref1 : l > ref1; i = 0 <= ref1 ? ++l : --l) {
+          for (i = o = 0, ref1 = sets.length; 0 <= ref1 ? o < ref1 : o > ref1; i = 0 <= ref1 ? ++o : --o) {
             results.push(sets[i].length);
           }
           return results;
@@ -944,9 +974,9 @@
         inc = inc_vector(limits);
         get_value = apply_vector(sets);
         v = (function() {
-          var l, ref1, results;
+          var o, ref1, results;
           results = [];
-          for (i = l = 0, ref1 = sets.length; 0 <= ref1 ? l < ref1 : l > ref1; i = 0 <= ref1 ? ++l : --l) {
+          for (i = o = 0, ref1 = sets.length; 0 <= ref1 ? o < ref1 : o > ref1; i = 0 <= ref1 ? ++o : --o) {
             results.push(0);
           }
           return results;
@@ -954,10 +984,10 @@
         return pretty_iterator((function() {
           var it;
           return "cartProd " + (((function() {
-            var l, len1, results;
+            var len1, o, results;
             results = [];
-            for (l = 0, len1 = iters.length; l < len1; l++) {
-              it = iters[l];
+            for (o = 0, len1 = iters.length; o < len1; o++) {
+              it = iters[o];
               results.push(show_iter(it));
             }
             return results;
@@ -1136,13 +1166,13 @@
       };
     };
     sum = accept_multi_or_array(function(arr) {
-      var l, len1, r, x;
+      var len1, o, r, x;
       if (arr.length === 1 && arr.first instanceof Array) {
         arr = arr.first;
       }
       r = 0;
-      for (l = 0, len1 = arr.length; l < len1; l++) {
-        x = arr[l];
+      for (o = 0, len1 = arr.length; o < len1; o++) {
+        x = arr[o];
         r += x;
       }
       return r;
@@ -1158,22 +1188,22 @@
       })(arr);
     });
     max_index = accept_multi_or_array(function(arr) {
-      var l, ref1, results;
+      var o, ref1, results;
       return best(function(i, j) {
         return arr[i] > arr[j];
       })((function() {
         results = [];
-        for (var l = 0, ref1 = arr.length; 0 <= ref1 ? l < ref1 : l > ref1; 0 <= ref1 ? l++ : l--){ results.push(l); }
+        for (var o = 0, ref1 = arr.length; 0 <= ref1 ? o < ref1 : o > ref1; 0 <= ref1 ? o++ : o--){ results.push(o); }
         return results;
       }).apply(this));
     });
     min_index = accept_multi_or_array(function(arr) {
-      var l, ref1, results;
+      var o, ref1, results;
       return best(function(i, j) {
         return arr[i] < arr[j];
       })((function() {
         results = [];
-        for (var l = 0, ref1 = arr.length; 0 <= ref1 ? l < ref1 : l > ref1; 0 <= ref1 ? l++ : l--){ results.push(l); }
+        for (var o = 0, ref1 = arr.length; 0 <= ref1 ? o < ref1 : o > ref1; 0 <= ref1 ? o++ : o--){ results.push(o); }
         return results;
       }).apply(this));
     });
@@ -1183,6 +1213,7 @@
       dict: dict,
       copy: copy,
       deepcopy: deepcopy,
+      securely: securely,
       int: int,
       float: float,
       bool: bool,
@@ -1203,6 +1234,7 @@
       prime_number: prime_number,
       random_gen: random_gen,
       ranged_random_gen: ranged_random_gen,
+      permutation_gen: permutation_gen,
       map: map,
       filter: filter,
       take: take,
@@ -1234,7 +1266,8 @@
       max: max,
       min: min,
       max_index: max_index,
-      min_index: min_index
+      min_index: min_index,
+      next_permutation: next_permutation
     };
   })();
 

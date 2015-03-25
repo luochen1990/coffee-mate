@@ -26,6 +26,7 @@ Here lists all APIs provided, **click it to see demo**. you can also read [API d
 	[`dict`](),
 	[`copy`](),
 	[`deepcopy`](),
+	[`securely`](),
 
 - type convertors:
 	[`int`](),
@@ -54,6 +55,7 @@ Here lists all APIs provided, **click it to see demo**. you can also read [API d
 		[`prime_number`](),
 		[`random_gen`](),
 		[`ranged_random_gen`](),
+		[`permutation_gen`](),
 	- iterator decorators:
 		[`map`](),
 		[`filter`](),
@@ -93,6 +95,7 @@ Here lists all APIs provided, **click it to see demo**. you can also read [API d
 	[`min`](),
 	[`max_index`](),
 	[`min_index`](),
+	[`next_permutation`](),
 
 - reinforce String:
 	[`a_string.format`](),
