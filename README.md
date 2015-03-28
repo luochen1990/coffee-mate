@@ -44,49 +44,17 @@ Here lists all APIs provided, **click it to see demo**. you can also read [API d
 	[`uri_decoder`](),
 
 - lazy evaluation:
-	- iterator convertors:
-		[`iterator`](),
-		[`enumerate`](),
-		[`new_iterator`](),
-		[`pretty_iterator`](),
-	- basic iterators:
-		[`range`](),
-		[`nature_number`](),
-		[`prime_number`](),
-		[`random_gen`](),
-		[`ranged_random_gen`](),
-		[`permutation_gen`](),
-	- iterator decorators:
-		[`map`](),
-		[`filter`](),
-		[`take`](),
-		[`takeWhile`](),
-		[`drop`](),
-		[`dropWhile`](),
-		[`scanl`](),
-		[`streak`](),
-		[`reverse`](),
-	- the iterator combiners:
-		[`concat`](),
-		[`zip`](),
-		[`cartProd`](),
-	- the iterator consumers:
-		[`list`](),
-		[`last`](),
-		[`foldl`](),
-		[`best`](),
-		[`all`](),
-		[`any`](),
-		[`foreach`](),
+	[here](https://github.com/luochen1990/lazy.coffee/blob/master/APIs.md)
 
 - funny functions:
 	[`church`](),
 	[`Y`](),
 	[`memoize`](),
 
-- mathematical functions:
-	[`square`](),
-	[`cube`](),
+- basic functions:
+	[`flip`](),
+	[`seek`](),
+	[`pluck`](),
 	[`abs`](),
 	[`floor`](),
 	[`ceil`](),
@@ -125,8 +93,7 @@ Install
 #### for browsers
 
 ```html
-<script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/coffee_mate.js" type="text/javascript"></script>
-<script src="http://cdn.rawgit.com/luochen1990/coffee-mate/master/global.js" type="text/javascript"></script>
+<script src="http://rawgit.com/luochen1990/coffee-mate/master/build/global.js" type="text/javascript"></script>
 ```
 
 Run Demo (nodejs)

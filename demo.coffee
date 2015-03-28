@@ -1,4 +1,4 @@
-require './global'
+require './src/global'
 
 console.log '\n###################### reinforce syntax ##########################\n'
 
@@ -9,7 +9,7 @@ log -> a
 log.info -> a + b
 log.warn -> a - b
 log.error -> sum(a, b, 1)
-log -> log.histories
+log -> log.histories.first
 
 # the assert macro
 try
@@ -72,12 +72,12 @@ console.log '\n####################### lazy evaluation #########################
 ls = []
 log -> ls = list map((i) -> chr(ord('a')+i)) range(3)
 log -> list enumerate ls
-log -> list take(3) nature_number()
-log -> list take(3) drop(3) nature_number()
-log -> list take((x) -> x <= 20) prime_number()
-log -> last streak(3) take((x) -> x <= 20) prime_number()
-log -> list zip(nature_number(), ls)
-log -> list take(4) cart(list(range(0, 10)), ls)
+log -> list take(3) naturals
+log -> list take(3) drop(3) naturals
+log -> list take((x) -> x <= 20) primes
+log -> last streak(3) take((x) -> x <= 20) primes
+log -> list zip(naturals, ls)
+log -> list take(4) cartProd(list(range(0, 10)), ls)
 log -> list filter((x) -> x % 3 == 1) range(10)
 log -> all((n) -> 'a'.repeat(n).length == n) range(0, 100)
 log -> foldl(sum, 0) range(100)
@@ -94,10 +94,6 @@ random = random_gen(0)
 (log -> random()) for i in [0...3]
 log -> list take(3) random_gen(0)
 
-console.log '\n#################### mathematical functions ######################\n'
-
-log -> square(2)
-log -> cube(2)
 log -> abs(-2)
 log -> floor(2.1)
 log -> ceil(2.1)

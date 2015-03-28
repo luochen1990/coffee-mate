@@ -1,7 +1,7 @@
 API Description
 ---------------
 
-### reinforce syntax
+### utils
 
 - `log`: can be used as a convenient log macro
 - `dict`: can be used to construct an dict conveniently just like dict comprehension
@@ -10,53 +10,53 @@ API Description
 
 ### lazy evaluation
 
-#### the iterator transfers
+#### the lazylist transfers
 
-- `iterator`: given an array, return it's iterator form, an iterator will pass through directly.
-- `iterator.end`: the symbol of iterating ending. if `iterating.end` is returned, the iterating is finished.
-- `list`: given an iterator, return an array, an array will pass through directly.
-- `enumerate`: given an iterator, array or object, returns an iterator which yields `[key, value]` pairs.
+- `lazy`: given an array, return it's lazylist form, an lazylist will pass through directly.
+- `nil`: the symbol of iterating ending. if `nil` is returned, the iterating is finished.
+- `list`: given an lazylist, return an array, an array will pass through directly.
+- `enumerate`: given an lazylist, array or object, returns an lazylist which yields `[key, value]` pairs.
 
 #### the basic generators
 
-- `nature_number`: given an optional first element, returns an unlimitted increasing integer iterator.
-- `range`: 0~3 arguments is allowed, just like the python function range(), returns a limitted integer iterator.
-- `prime_number`: a prime number iterator
+- `naturals`: given an optional first element, returns an unlimitted increasing integer lazylist.
+- `range`: 0~3 arguments is allowed, just like the python function range(), returns a limitted integer lazylist.
+- `primes`: a prime number lazylist
 
-#### the iterator decorators
+#### the lazylist decorators
 
-- `take`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the first `n` item of `iter`.
-- `takeWhile`: given a function `ok`, return a decorator when decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` until `ok(x)` is `false`.
-- `drop`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the item of `iter` without the first `n` ones.
-- `dropWhile`: given a function `ok`, return a decorator when decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` start from the first x where `ok(x)` is `true`.
-- `map`: given a function `f`, return a decorator which decorate an iterator `iter` to an iterator which yields `f(x)` for each item `x` in `iter`.
-- `filter`: given a function `ok`, return a decorator which decorate an iterator `iter` to an iterator which yields `x` for each item `x` in `iter` when `ok(x)` is `true`.
-- `streak`: given a nature number `n`, return a decorator which decorate an iterator `iter` to an iterator which yields the latest `n` item of `iter` each time.
+- `take`: given a number `n`, return a decorator which decorate an lazylist `iter` to an lazylist which yields the first `n` item of `iter`.
+- `takeWhile`: given a function `ok`, return a decorator when decorate an lazylist `iter` to an lazylist which yields `x` for each item `x` in `iter` until `ok(x)` is `false`.
+- `drop`: given a number `n`, return a decorator which decorate an lazylist `iter` to an lazylist which yields the item of `iter` without the first `n` ones.
+- `dropWhile`: given a function `ok`, return a decorator when decorate an lazylist `iter` to an lazylist which yields `x` for each item `x` in `iter` start from the first x where `ok(x)` is `true`.
+- `map`: given a function `f`, return a decorator which decorate an lazylist `iter` to an lazylist which yields `f(x)` for each item `x` in `iter`.
+- `filter`: given a function `ok`, return a decorator which decorate an lazylist `iter` to an lazylist which yields `x` for each item `x` in `iter` when `ok(x)` is `true`.
+- `streak`: given a number `n`, return a decorator which decorate an lazylist `iter` to an lazylist which yields the latest `n` item of `iter` each time.
 
-#### the iterator combiners
+#### the lazylist combiners
 
 - `concat`: given a sort of iterators, return a concated one.
-- `zip`: given a sort of iterators, return a zipped one which is also an iterator.
-- `cart`: given a sort of iterators, return their cartesian product which is also an iterator.
+- `zip`: given a sort of iterators, return a zipped one which is also an lazylist.
+- `cart`: given a sort of iterators, return their cartesian product which is also an lazylist.
 
-#### the iterator consumers
+#### the lazylist consumers
 
-- `foreach`: given an iterator, an callback function, an optional init value for result, execute `callback(item, result)` for each item yield by the iterator, finally return the result value(which should be modified by the callback directly).
+- `foreach`: given an lazylist, an callback function, an optional init value for result, execute `callback(item, result)` for each item yield by the lazylist, finally return the result value(which should be modified by the callback directly).
 - `foreach.break`: the symbol of foreach breaking. if `foreach.break` is returned, the foreach loop is finished.
-- `last`: given an iterator, return the last element it generates.
-- `foldl`: given an operator and a init value, return an iterator processor which generate a result
+- `last`: given an lazylist, return the last element it generates.
+- `foldl`: given an operator and a init value, return an lazylist processor which generate a result
 - `best`: given a function describing which one is better, return a function describing which one is best
-- `all`: given a judge function, return a function deals with an iterator, which returns true only if for every item in the iterator, the judge function returns true
-- `any`: given a judge function, return a function deals with an iterator, which returns true if for any item in the iterator, the judge function returns true
+- `all`: given a judge function, return a function deals with an lazylist, which returns true only if for every item in the lazylist, the judge function returns true
+- `any`: given a judge function, return a function deals with an lazylist, which returns true if for any item in the lazylist, the judge function returns true
 
 ### simple pseudo-random
 
-- `random_gen`: given a seed, return a random iterator which generate an decimal in range `[0, 1)` each time
-- `ranged_random_gen`: given an integer `n` and a seed, return a random iterator which generate an integer in range `[0, n-1]`
+- `random_gen`: given a seed, return a random lazylist which generate an decimal in range `[0, 1)` each time
+- `ranged_random_gen`: given an integer `n` and a seed, return a random lazylist which generate an integer in range `[0, n-1]`
 
 ### intersting higher-order functions
 
-- `church`: given a nature number `n`, return the church number `n`.
+- `church`: given a number `n`, return the church number `n`.
 - `Y`: the Y Combinator, given a high-order function, return it's fixed point which is also a function.
 - `memorize`: given a function, return it's memorized version.
 
@@ -94,10 +94,8 @@ API Description
 - `json`: return the json string of an object
 - `obj`: convert the json string to an object
 
-### mathematical functions
+### basic functions
 
-- `square`: given x, return x * x
-- `cube`: given x, return x * x * x
 - `abs`: alias of Math.abs
 - `floor`: alias of Math.floor
 - `ceil`: alias of Math.ceil
