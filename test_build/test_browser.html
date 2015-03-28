@@ -1,0 +1,9 @@
+<div id="div"></div>
+<script src="../build/global.coffee.js"></script>
+<script>
+var ls = list(take(100)(primes));
+document.getElementById('div').appendChild(document.createTextNode(JSON.stringify(ls)));
+log(function(){return "hello"});
+console.log(ls);
+console.log(module);
+</script>

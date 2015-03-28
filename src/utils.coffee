@@ -10,7 +10,7 @@ this_module = () ->
 	log = do -> #log an expression with it's literal and time used
 		dye = do ->
 			# ANSI Terminal Colors.
-			cavailable = process? and not process.env.NODE_DISABLE_COLORS
+			cavailable = (not window?) and process? and not process.env.NODE_DISABLE_COLORS
 			palette =
 				bold: '\x1B[0;1m'
 				red: '\x1B[0;31m'
