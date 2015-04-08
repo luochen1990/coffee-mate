@@ -47,7 +47,7 @@ this_module = () ->
 						start_time = time_now()
 						eval_result = f()
 						time_used = time_now() - start_time
-						ball.push("#{prefix} #{dye('green') expr} #{dye('bold_grey') '==>'}", f())
+						ball.push("#{prefix} #{dye('green') expr} #{dye('bold_grey') '==>'}", eval_result)
 						ball.push(dye('yellow') "[#{time_used}ms]") if time_used > 0
 					else
 						ball.push("#{prefix}", f)
