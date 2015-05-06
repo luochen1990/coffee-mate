@@ -1,13 +1,37 @@
 this_module = ({best}) ->
+	# transformers
 	flip = (f) ->
 		(x) -> (y) -> f(y)(x)
 
+	combine = (f) -> (g) ->
+		(x) -> f g(x)
+
+	curry2 = (f) ->
+		(a) -> (b) -> f(a, b)
+
+	curry3 = (f) ->
+		(a) -> (b) -> (c) -> f(a, b, c)
+
+	uncurry2 = (f) ->
+		(a, b) -> f(a)(b)
+
+	uncurry3 = (f) ->
+		(a, b, c) -> f(a)(b)(c)
+
+	pack = (f) ->
+		(arr) -> f(arr...)
+
+	unpack = (f) ->
+		(arr...) -> f(arr)
+
+	# seek & pluck in Array or Object
 	seek = (arr) ->
 		(i) -> arr[i]
 
 	pluck = (attr) ->
 		(d) -> d[attr]
 
+	# compare
 	equal = (it) ->
 		(x) -> x == it
 
@@ -25,6 +49,13 @@ this_module = ({best}) ->
 
 	greaterEqual = (it) ->
 		(x) -> x >= it
+
+	# math
+	plus = (it) ->
+		(x) -> x + it
+
+	minus = (it) ->
+		(x) -> x - it
 
 	abs = Math.abs
 	floor = Math.floor
@@ -53,9 +84,12 @@ this_module = ({best}) ->
 		best((i, j) -> arr[i] < arr[j]) [0...arr.length]
 
 	return {
-		flip, seek, pluck,
+		flip, combine,
+		curry2, curry3, uncurry2, uncurry3, pack, unpack,
+		seek, pluck,
 		equal, notEqual, lessThan, lessEqual, greaterThan, greaterEqual,
-		abs, floor, ceil, sum, max, min, max_index, min_index,
+		plus, minus, abs, floor, ceil,
+		sum, max, min, max_index, min_index,
 	}
 
 module.exports = this_module
