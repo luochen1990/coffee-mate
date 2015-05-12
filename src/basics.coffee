@@ -61,6 +61,9 @@ this_module = ({best}) ->
 	floor = Math.floor
 	ceil = Math.ceil
 
+	precise = (n) ->
+		(x) -> parseFloat x.toPrecision(n)
+
 	accept_multi_or_array = (f) ->
 		(arr...) ->
 			f(if arr.length == 1 and arr.first instanceof Array then arr.first else arr)
@@ -88,7 +91,7 @@ this_module = ({best}) ->
 		curry2, curry3, uncurry2, uncurry3, pack, unpack,
 		seek, pluck,
 		equal, notEqual, lessThan, lessEqual, greaterThan, greaterEqual,
-		plus, minus, abs, floor, ceil,
+		plus, minus, abs, floor, ceil, precise,
 		sum, max, min, max_index, min_index,
 	}
 
