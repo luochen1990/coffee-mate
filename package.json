@@ -18,7 +18,7 @@
     "dict comprehension",
     "random"
   ],
-  "main": "./build/coffee-mate.coffee.js",
+  "main": "./build/coffee-mate.js",
   "browserify": {
     "transform": [
       "coffeeify"
