@@ -1,6 +1,6 @@
 utils = require './utils'
 basics = require './basics'
-lazy = require './lazy'
+lazy = require 'lazy.coffee'
 funny = require './funny'
 convertors = require './convertors'
 url_helpers = require './url-helpers'
