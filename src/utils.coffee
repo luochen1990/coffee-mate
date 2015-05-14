@@ -65,9 +65,11 @@ this_module = () ->
 	assert = (f, msg) ->
 		[f, msg] = [msg, f] if f not instanceof Function
 		try
-			throw Error "Assertion #{msg ? function_literal(f)} Failed!" if not f()
+			r = f()
 		catch e
 			throw Error "Assertion #{msg ? function_literal(f)} Unknown:\n#{e}"
+		if not r
+			throw Error "Assertion #{msg ? function_literal(f)} Failed!"
 
 	assertEq = (l, r) ->
 		try
@@ -121,8 +123,22 @@ this_module = () ->
 			base[k] = v for k, v of d
 		return base
 
+	override = (_d) ->
+		d = copy _d
+		fallback = d['_']
+		if fallback?
+			(args...) ->
+				(d[args.length] ? fallback) args...
+		else
+			(args...) ->
+				f = d[args.length]
+				if not f?
+					throw Error "This Function Can't Accept #{args.length} Args"
+				else
+					return f args...
+
 	return {
-		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely, extend, update,
+		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely, extend, update, override,
 	}
 
 module.exports = this_module()
