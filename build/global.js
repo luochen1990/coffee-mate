@@ -59,8 +59,797 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],2:[function(require,module,exports){
-!function n(r,t,u){function e(i,f){if(!t[i]){if(!r[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(o)return o(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var l=t[i]={exports:{}};r[i][0].call(l.exports,function(n){var t=r[i][1][n];return e(t?t:n)},l,l.exports,n,r,t,u)}return t[i].exports}for(var o="function"==typeof require&&require,i=0;i<u.length;i++)e(u[i]);return e}({1:[function(n,r){var t,u=[].slice;t=function(n){var r,t,e,o,i,f,c,a,l,v,h,s,p,g,y,m,d,b,z,S,x,E,A,M,N,k,L,O,_,w,I,R,W,j,q,T,U,D;return r=n.Symbol,z=function(n){return n[r.iterator]=function(){return n()},n.toString=function(){return"LazyList"},n},M=z(function(){return M}),M.toString=function(){return"nil"},m=function(n){return n.next=function(){var r;return r=n(),{value:r,done:r===M}},n.toString=function(){return"Iterator"},n},A=z(function(){var n;return n=-1,m(function(){return++n})}),O=function(){var n;return n=1<=arguments.length?u.call(arguments,0):[],0===n.length?A:z(1===n.length?function(){var r,t;return t=n[0],r=-1,m(function(){return++r<t?r:M})}:2===n.length?function(){var r,t,u;return t=n[0],u=n[1],u>t?(r=t-1,m(function(){return++r<u?r:M})):(r=t+1,m(function(){return--r>u?r:M}))}:function(){var r,t,u,e;if(t=n[0],e=n[1],u=n[2],e!==t&&0>(e-t)*u)throw"ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE";return r=t-u,m(e>t?function(){return(r+=u)<e?r:M}:function(){return(r+=u)>e?r:M})})},k=z(function(){return s(function(n){return t(function(r){return n%r!==0})(T(function(r){return n>=r*r})(O(2,1/0)))})(O(2,1/0))()}),b=function(n){return z("function"==typeof n?n:null!=n[r.iterator]?function(){var t;return t=n[r.iterator](),m(function(){var n;return n=t.next(),n.done?M:n.value})}:function(){var r;return r=-1,m(function(){return r+=1,r<n.length?n[r]:M})})},h=function(n){return null!=n[r.iterator]||n instanceof Array?U(A,n):z(function(){var r,t;return t=Object.keys(n),r=-1,m(function(){var u;return++r<t.length?[u=t[r],n[u]]:M})})},I=function(n){return z(function(){return m(function(){return n})})},y=function(n,r){return z(function(){var t;return t=n,m(function(){var n;return n=t,t=r(t),n})})},L=function(){var n;return n=function(n){return n=1e4*Math.sin(n),n-Math.floor(n)},function(r){var t,u;return u=n(null!=(t=null!=r?r.seed:void 0)?t:Math.random()),y(u,n)}}(),_=function(n,r){var t,u;return u=null!=(t=null!=r?r.seed:void 0)?t:Math.random(),E(function(r){return Math.floor(r*n)})(L({seed:u}))},N=function(){var n;return n=function(n){var r,t,u,e,o;for(n=n.slice(0),r=n.length-1;r>=1&&n[r]<=n[r-1];)--r;if(0!==r){for(t=n.length-1;t>r-1&&n[t]<=n[r-1];)--t;e=[n[r-1],n[t]],n[t]=e[0],n[r-1]=e[1]}for(u=n.length-1;u>r;)o=[n[u],n[r]],n[r]=o[0],n[u]=o[1],++r,--u;return n},function(r){return 0===r.length?M:c([r.slice(0)],T(function(n){return json(n)!==json(r)})(l(1)(y(r,n))))}}(),q=function(n){return function(t){return z(function(){var u,e;return e=("function"==typeof t?t:b(t))[r.iterator](),u=-1,m(function(){return++u<n?e():M})})}},T=function(n){return function(t){return z(function(){var u;return u=("function"==typeof t?t:b(t))[r.iterator](),m(function(){var r;return(r=u())!==M&&n(r)?r:M})})}},l=function(n){return function(t){return z(function(){var u,e,o,i,f;for(o=("function"==typeof t?t:b(t))[r.iterator](),u=!1,e=i=0,f=n;(f>=0?f>i:i>f)&&(u||(u=o()===M),!u);e=f>=0?++i:--i);return u?function(){return M}:o})}},v=function(n){return function(t){return z(function(){var u,e;for(u=("function"==typeof t?t:b(t))[r.iterator]();n(e=u())&&e!==M;);return m(function(){var n,r;return r=[e,u()],n=r[0],e=r[1],n})})}},a=function(n){return function(t){return z(function(){var u;return u=null,m(function(){return null===u?(u=("function"==typeof t?t:b(t))[r.iterator](),n):u()})})}},E=function(n){return function(t){return z(function(){var u;return u=("function"==typeof t?t:b(t))[r.iterator](),m(function(){var r;return(r=u())!==M?n(r):M})})}},s=function(n){return function(t){return z(function(){var u;return u=("function"==typeof t?t:b(t))[r.iterator](),m(function(){for(var r;!n(r=u())&&r!==M;);return r})})}},W=function(n,t){return function(u){return z(function(){var e;return e=("function"==typeof u?u:b(u))[r.iterator](),m(function(){var r,u;return r=t,t=(u=e())!==M?n(t,u):M,r})})}},j=function(n){return function(t){return z(function(){var u,e;return e=("function"==typeof t?t:b(t))[r.iterator](),u=[],m(function(){var r;return(r=e())===M?M:(u.push(r),u.length>n&&u.shift(1),u.slice(0))})})}},R=function(n){var r;return r="function"==typeof n?x(n):copy(n),b(r.reverse())},c=function(){var n;return n=1<=arguments.length?u.call(arguments,0):[],z(function(){var t,u;return u=(null!=n[0][r.iterator]?n[0]:b(n[0]))[r.iterator](),t=0,m(function(){var e;return(e=u())!==M?e:++t<n.length?(u=(null!=n[t][r.iterator]?n[t]:b(n[t]))[r.iterator]())():M})})},w=function(){var n,t,e;return n=function(n){var r,t,u;for(r=0,t=n.length;t>r;r++)if(u=n[r],u===M)return!0;return!1},t=function(){var t;return t=1<=arguments.length?u.call(arguments,0):[],z(function(){var u,e;return u=function(){var n,u,o;for(o=[],n=0,u=t.length;u>n;n++)e=t[n],o.push(("function"==typeof e?e:b(e))[r.iterator]());return o}(),m(function(){var r,t;return t=function(){var n,t,e;for(e=[],n=0,t=u.length;t>n;n++)r=u[n],e.push(r());return e}(),n(t)?M:t})})},e=function(t){return function(){var e;return e=1<=arguments.length?u.call(arguments,0):[],z(function(){var u,o;return u=function(){var n,t,u;for(u=[],n=0,t=e.length;t>n;n++)o=e[n],u.push(("function"==typeof o?o:b(o))[r.iterator]());return u}(),m(function(){var r,e;return e=function(){var n,t,e;for(e=[],n=0,t=u.length;t>n;n++)r=u[n],e.push(r());return e}(),n(e)?M:t.apply(null,e)})})}},{zip:t,zipWith:e}}(),U=w.zip,D=w.zipWith,f=function(){var n,r;return r=function(n){var r;return r=n.length-1,function(t){var u;for(u=r;!(++t[u]<n[u]||0>=u);)t[u--]=0;return t}},n=function(n){var r;return r=n.length,function(t){var u,e,o,i;for(i=[],u=e=0,o=r;o>=0?o>e:e>o;u=o>=0?++e:--e)i.push(n[u][t[u]]);return i}},function(){var t;return t=1<=arguments.length?u.call(arguments,0):[],z(function(){var u,e,o,i,f,c,a,l,v;for(t=function(){var n,r,u;for(u=[],n=0,r=t.length;r>n;n++)v=t[n],u.push(x(v));return u}(),a=function(){var n,r,u;for(u=[],e=n=0,r=t.length;r>=0?r>n:n>r;e=r>=0?++n:--n)u.push(t[e].length);return u}(),i=0,c=a.length;c>i;i++)if(f=a[i],0===f)return M;return o=r(a),u=n(t),l=function(){var n,r,u;for(u=[],e=n=0,r=t.length;r>=0?r>n:n>r;e=r>=0?++n:--n)u.push(0);return u}(),m(function(){var n;return l[0]<a[0]?(n=u(l),o(l),n):M})})}}(),x=function(n){var t,u,e,o,i;if("number"==typeof n)return u=n,function(n){return x(q(u)(n))};if("function"==typeof n){for(t=n[r.iterator](),e=[];(i=t())!==M;)e.push(i);return e}if(null!=n[r.iterator]){for(t=b(n)[r.iterator](),o=[];(i=t())!==M;)o.push(i);return o}if(n instanceof Array)return n;throw Error("list(xs): xs is neither LazyList nor Array")},d=function(n){var t,u,e,o;if(null==n[r.iterator])return null!=(e=n[n.length-1])?e:M;for(t=("function"==typeof n?n:b(n))[r.iterator](),u=M;(o=t())!==M;)u=o;return u},S=function(n){var t,u,e;if(null==n[r.iterator])return n.length;for(t=("function"==typeof n?n:b(n))[r.iterator](),u=0;(e=t())!==M;)++u;return u},p=function(n,t){return function(u){var e,o,i;for(o=t,e=("function"==typeof u?u:b(u))[r.iterator]();(i=e())!==M;)o=n(o,i);return o}},o=function(n){return function(t){var u,e,o;if(e=("function"==typeof t?t:b(t))[r.iterator](),(o=e())===M)return null;for(;(u=e())!==M;)o=n(u,o)?u:o;return o}},t=function(n){return"function"!=typeof n&&(n=function(r){return r===n}),function(t){var u,e;for(u=("function"==typeof t?t:b(t))[r.iterator]();(e=u())!==M;)if(!n(e))return!1;return!0}},e=function(n){var r;return r=t(function(r){return!n(r)}),function(n){return!r(n)}},i=function(){return i},i.toString=function(){return"foreach.break"},g=function(n,t,u){var e,o;for(e=("function"==typeof n?n:b(n))[r.iterator]();(o=e())!==M&&t(o,u)!==i;);return u},Object.defineProperties(g,{"break":{writable:!1,configurable:!1,enumerable:!1,value:i}}),{nil:M,lazylist:z,iterator:m,Symbol:r,naturals:A,range:O,primes:k,lazy:b,enumerate:h,repeat:I,generate:y,random_gen:L,ranged_random_gen:_,permutation_gen:N,cons:a,map:E,filter:s,take:q,takeWhile:T,drop:l,dropWhile:v,scanl:W,streak:j,reverse:R,concat:c,zip:U,zipWith:D,cartProd:f,list:x,last:d,length:S,foldl:p,best:o,all:t,any:e,foreach:g}},r.exports=t({Symbol:"undefined"!=typeof Symbol&&null!==Symbol?Symbol:{iterator:"iter"}})},{}]},{},[1]);
-//# sourceMappingURL=lazy.coffee.js.map
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+var this_module,
+  slice = [].slice;
+
+this_module = function(arg) {
+  var Iterator, LazyList, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, iterate, join, last, lazy, length, list, map, naturals, nil, permutation_gen, primes, random_gen, range, ranged_random_gen, ref, repeat, reverse, scanl, streak, take, takeWhile, zip, zipWith;
+  Symbol = arg.Symbol;
+  LazyList = function(f) {
+    f[Symbol.iterator] = function() {
+      return f();
+    };
+    f.toString = function() {
+      return "LazyList";
+    };
+    return f;
+  };
+  nil = LazyList(function() {
+    return nil;
+  });
+  nil.toString = function() {
+    return 'nil';
+  };
+  Iterator = function(it) {
+    it.next = function() {
+      var r;
+      r = it();
+      return {
+        value: r,
+        done: r === nil
+      };
+    };
+    it.toString = function() {
+      return "Iterator";
+    };
+    return it;
+  };
+  naturals = LazyList(function() {
+    var i;
+    i = -1;
+    return Iterator(function() {
+      return ++i;
+    });
+  });
+  range = function() {
+    var args;
+    args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+    if (args.length === 0) {
+      return naturals;
+    } else if (args.length === 1) {
+      return LazyList(function() {
+        var i, stop;
+        stop = args[0];
+        i = -1;
+        return Iterator(function() {
+          if (++i < stop) {
+            return i;
+          } else {
+            return nil;
+          }
+        });
+      });
+    } else if (args.length === 2) {
+      return LazyList(function() {
+        var i, start, stop;
+        start = args[0], stop = args[1];
+        if (start < stop) {
+          i = start - 1;
+          return Iterator(function() {
+            if (++i < stop) {
+              return i;
+            } else {
+              return nil;
+            }
+          });
+        } else {
+          i = start + 1;
+          return Iterator(function() {
+            if (--i > stop) {
+              return i;
+            } else {
+              return nil;
+            }
+          });
+        }
+      });
+    } else {
+      return LazyList(function() {
+        var i, start, step, stop;
+        start = args[0], stop = args[1], step = args[2];
+        if (stop !== start && (stop - start) * step < 0) {
+          throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE';
+        }
+        i = start - step;
+        if (start < stop) {
+          return Iterator(function() {
+            if ((i += step) < stop) {
+              return i;
+            } else {
+              return nil;
+            }
+          });
+        } else {
+          return Iterator(function() {
+            if ((i += step) > stop) {
+              return i;
+            } else {
+              return nil;
+            }
+          });
+        }
+      });
+    }
+  };
+  primes = LazyList(function() {
+    return filter(function(x) {
+      return all(function(p) {
+        return x % p !== 0;
+      })(takeWhile(function(p) {
+        return p * p <= x;
+      })(range(2, Infinity)));
+    })(range(2, Infinity))();
+  });
+  lazy = function(arr) {
+    if (typeof arr === 'function') {
+      if (arr[Symbol.iterator] != null) {
+        return arr;
+      } else {
+        return LazyList(arr);
+      }
+    } else if (arr[Symbol.iterator] != null) {
+      return LazyList(function() {
+        var it;
+        it = arr[Symbol.iterator]();
+        return Iterator(function() {
+          var r;
+          r = it.next();
+          if (r.done) {
+            return nil;
+          } else {
+            return r.value;
+          }
+        });
+      });
+    } else {
+      return LazyList(function() {
+        var i;
+        i = -1;
+        return Iterator(function() {
+          i += 1;
+          if (i < arr.length) {
+            return arr[i];
+          } else {
+            return nil;
+          }
+        });
+      });
+    }
+  };
+  enumerate = function(it) {
+    if ((it[Symbol.iterator] != null) || it instanceof Array) {
+      return zip(naturals, it);
+    } else {
+      return LazyList(function() {
+        var i, keys;
+        keys = Object.keys(it);
+        i = -1;
+        return Iterator(function() {
+          var k;
+          if (++i < keys.length) {
+            return [(k = keys[i]), it[k]];
+          } else {
+            return nil;
+          }
+        });
+      });
+    }
+  };
+  repeat = function(x) {
+    return LazyList(function() {
+      return Iterator(function() {
+        return x;
+      });
+    });
+  };
+  iterate = function(next, init) {
+    return LazyList(function() {
+      var status;
+      status = init;
+      return Iterator(function() {
+        var last;
+        last = status;
+        status = next(status);
+        return last;
+      });
+    });
+  };
+  random_gen = (function() {
+    var hash;
+    hash = function(x) {
+      x = Math.sin(x) * 1e4;
+      return x - Math.floor(x);
+    };
+    return function(opts) {
+      var ref, seed;
+      seed = hash((ref = opts != null ? opts.seed : void 0) != null ? ref : Math.random());
+      return iterate(hash, seed);
+    };
+  })();
+  ranged_random_gen = function(range, opts) {
+    var ref, seed;
+    seed = (ref = opts != null ? opts.seed : void 0) != null ? ref : Math.random();
+    return map(function(x) {
+      return Math.floor(x * range);
+    })(random_gen({
+      seed: seed
+    }));
+  };
+  permutation_gen = (function() {
+    var next_permutation;
+    next_permutation = function(x) {
+      var l, m, r, ref, ref1;
+      x = x.slice(0);
+      l = x.length - 1;
+      while (l >= 1 && x[l] <= x[l - 1]) {
+        --l;
+      }
+      if (l !== 0) {
+        m = x.length - 1;
+        while (m > l - 1 && x[m] <= x[l - 1]) {
+          --m;
+        }
+        ref = [x[l - 1], x[m]], x[m] = ref[0], x[l - 1] = ref[1];
+      }
+      r = x.length - 1;
+      while (l < r) {
+        ref1 = [x[r], x[l]], x[l] = ref1[0], x[r] = ref1[1];
+        ++l;
+        --r;
+      }
+      return x;
+    };
+    return function(arr) {
+      if (arr.length === 0) {
+        return nil;
+      } else {
+        return cons(arr.slice(0))(takeWhile(function(ls) {
+          return json(ls) !== json(arr);
+        })(drop(1)(iterate(next_permutation, arr))));
+      }
+    };
+  })();
+  take = function(n) {
+    return function(xs) {
+      return LazyList(function() {
+        var c, iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        c = -1;
+        return Iterator(function() {
+          if (++c < n) {
+            return iter();
+          } else {
+            return nil;
+          }
+        });
+      });
+    };
+  };
+  takeWhile = function(ok) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        return Iterator(function() {
+          var x;
+          if ((x = iter()) !== nil && ok(x)) {
+            return x;
+          } else {
+            return nil;
+          }
+        });
+      });
+    };
+  };
+  drop = function(n) {
+    return function(xs) {
+      return LazyList(function() {
+        var finished, i, iter, j, ref;
+        iter = lazy(xs)[Symbol.iterator]();
+        finished = false;
+        for (i = j = 0, ref = n; 0 <= ref ? j < ref : j > ref; i = 0 <= ref ? ++j : --j) {
+          finished || (finished = iter() === nil);
+          if (finished) {
+            break;
+          }
+        }
+        if (finished) {
+          return function() {
+            return nil;
+          };
+        } else {
+          return iter;
+        }
+      });
+    };
+  };
+  dropWhile = function(ok) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter, x;
+        iter = lazy(xs)[Symbol.iterator]();
+        while (ok(x = iter()) && x !== nil) {
+          null;
+        }
+        return Iterator(function() {
+          var prevx, ref;
+          ref = [x, iter()], prevx = ref[0], x = ref[1];
+          return prevx;
+        });
+      });
+    };
+  };
+  cons = function(x) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter;
+        iter = null;
+        return Iterator(function() {
+          if (iter === null) {
+            iter = lazy(xs)[Symbol.iterator]();
+            return x;
+          } else {
+            return iter();
+          }
+        });
+      });
+    };
+  };
+  concat = function(ws) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter, xs_unused;
+        xs_unused = true;
+        iter = lazy(ws)[Symbol.iterator]();
+        return Iterator(function() {
+          var x;
+          if (xs_unused) {
+            if ((x = iter()) !== nil) {
+              return x;
+            } else {
+              iter = lazy(xs)[Symbol.iterator]();
+              xs_unused = false;
+              return iter();
+            }
+          } else {
+            return iter();
+          }
+        });
+      });
+    };
+  };
+  map = function(f) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        return Iterator(function() {
+          var x;
+          if ((x = iter()) !== nil) {
+            return f(x);
+          } else {
+            return nil;
+          }
+        });
+      });
+    };
+  };
+  filter = function(ok) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        return Iterator(function() {
+          var x;
+          while (!ok(x = iter()) && x !== nil) {
+            null;
+          }
+          return x;
+        });
+      });
+    };
+  };
+  scanl = function(f, r) {
+    return function(xs) {
+      return LazyList(function() {
+        var iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        return Iterator(function() {
+          var got, x;
+          got = r;
+          r = (x = iter()) !== nil ? f(r, x) : nil;
+          return got;
+        });
+      });
+    };
+  };
+  streak = function(n) {
+    return function(xs) {
+      return LazyList(function() {
+        var buf, iter;
+        iter = lazy(xs)[Symbol.iterator]();
+        buf = [];
+        return Iterator(function() {
+          var x;
+          if ((x = iter()) === nil) {
+            return nil;
+          }
+          buf.push(x);
+          if (buf.length > n) {
+            buf.shift(1);
+          }
+          return buf.slice(0);
+        });
+      });
+    };
+  };
+  reverse = function(xs) {
+    var arr;
+    arr = list(lazy(xs));
+    return lazy(arr.reverse());
+  };
+  join = function(xss) {
+    return LazyList(function() {
+      var iter, xs, xs_iter;
+      xs_iter = lazy(xss)[Symbol.iterator]();
+      xs = xs_iter();
+      iter = lazy(xs)[Symbol.iterator]();
+      return Iterator(function() {
+        var x;
+        if ((x = iter()) !== nil) {
+          return x;
+        } else if ((xs = xs_iter()) !== nil) {
+          iter = lazy(xs)[Symbol.iterator]();
+          return iter();
+        } else {
+          return nil;
+        }
+      });
+    });
+  };
+  ref = (function() {
+    var finished, zip, zipWith;
+    finished = function(arr) {
+      var j, len1, x;
+      for (j = 0, len1 = arr.length; j < len1; j++) {
+        x = arr[j];
+        if (x === nil) {
+          return true;
+        }
+      }
+      return false;
+    };
+    zip = function() {
+      var xss;
+      xss = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+      return LazyList(function() {
+        var iters, xs;
+        iters = (function() {
+          var j, len1, results;
+          results = [];
+          for (j = 0, len1 = xss.length; j < len1; j++) {
+            xs = xss[j];
+            results.push(lazy(xs)[Symbol.iterator]());
+          }
+          return results;
+        })();
+        return Iterator(function() {
+          var iter, next;
+          next = (function() {
+            var j, len1, results;
+            results = [];
+            for (j = 0, len1 = iters.length; j < len1; j++) {
+              iter = iters[j];
+              results.push(iter());
+            }
+            return results;
+          })();
+          if (finished(next)) {
+            return nil;
+          } else {
+            return next;
+          }
+        });
+      });
+    };
+    zipWith = function(f) {
+      return function() {
+        var xss;
+        xss = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+        return LazyList(function() {
+          var iters, xs;
+          iters = (function() {
+            var j, len1, results;
+            results = [];
+            for (j = 0, len1 = xss.length; j < len1; j++) {
+              xs = xss[j];
+              results.push(lazy(xs)[Symbol.iterator]());
+            }
+            return results;
+          })();
+          return Iterator(function() {
+            var iter, next;
+            next = (function() {
+              var j, len1, results;
+              results = [];
+              for (j = 0, len1 = iters.length; j < len1; j++) {
+                iter = iters[j];
+                results.push(iter());
+              }
+              return results;
+            })();
+            if (finished(next)) {
+              return nil;
+            } else {
+              return f.apply(null, next);
+            }
+          });
+        });
+      };
+    };
+    return {
+      zip: zip,
+      zipWith: zipWith
+    };
+  })(), zip = ref.zip, zipWith = ref.zipWith;
+  cartProd = (function() {
+    var apply_vector, inc_vector;
+    inc_vector = function(limits) {
+      var len_minus_1;
+      len_minus_1 = limits.length - 1;
+      return function(vec) {
+        var i;
+        i = len_minus_1;
+        while (!(++vec[i] < limits[i] || i <= 0)) {
+          vec[i--] = 0;
+        }
+        return vec;
+      };
+    };
+    apply_vector = function(space) {
+      var len;
+      len = space.length;
+      return function(vec) {
+        var i, j, ref1, results;
+        results = [];
+        for (i = j = 0, ref1 = len; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
+          results.push(space[i][vec[i]]);
+        }
+        return results;
+      };
+    };
+    return function() {
+      var xss;
+      xss = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+      return LazyList(function() {
+        var get_value, i, inc, j, len, len1, limits, v, xs;
+        xss = (function() {
+          var j, len1, results;
+          results = [];
+          for (j = 0, len1 = xss.length; j < len1; j++) {
+            xs = xss[j];
+            results.push(list(xs));
+          }
+          return results;
+        })();
+        limits = (function() {
+          var j, ref1, results;
+          results = [];
+          for (i = j = 0, ref1 = xss.length; 0 <= ref1 ? j < ref1 : j > ref1; i = 0 <= ref1 ? ++j : --j) {
+            results.push(xss[i].length);
+          }
+          return results;
+        })();
+        for (j = 0, len1 = limits.length; j < len1; j++) {
+          len = limits[j];
+          if (len === 0) {
+            return nil;
+          }
+        }
+        inc = inc_vector(limits);
+        get_value = apply_vector(xss);
+        v = (function() {
+          var o, ref1, results;
+          results = [];
+          for (i = o = 0, ref1 = xss.length; 0 <= ref1 ? o < ref1 : o > ref1; i = 0 <= ref1 ? ++o : --o) {
+            results.push(0);
+          }
+          return results;
+        })();
+        return Iterator(function() {
+          var r;
+          if (v[0] < limits[0]) {
+            r = get_value(v);
+            inc(v);
+            return r;
+          } else {
+            return nil;
+          }
+        });
+      });
+    };
+  })();
+  list = function(xs) {
+    var it, n, results, results1, x;
+    if (xs instanceof Array) {
+      return xs;
+    } else if (typeof xs === 'function') {
+      it = xs[Symbol.iterator]();
+      results = [];
+      while ((x = it()) !== nil) {
+        results.push(x);
+      }
+      return results;
+    } else if (xs[Symbol.iterator] != null) {
+      it = lazy(xs)[Symbol.iterator]();
+      results1 = [];
+      while ((x = it()) !== nil) {
+        results1.push(x);
+      }
+      return results1;
+    } else if (typeof xs === 'number') {
+      n = xs;
+      return function(xs) {
+        return list(take(n)(xs));
+      };
+    } else {
+      throw Error('list(xs): xs is neither LazyList nor Array');
+    }
+  };
+  last = function(xs) {
+    var iter, r, ref1, x;
+    if (xs[Symbol.iterator] == null) {
+      return (ref1 = xs[xs.length - 1]) != null ? ref1 : nil;
+    } else {
+      iter = lazy(xs)[Symbol.iterator]();
+      r = nil;
+      while ((x = iter()) !== nil) {
+        r = x;
+      }
+      return r;
+    }
+  };
+  length = function(xs) {
+    var iter, r, x;
+    if (xs[Symbol.iterator] == null) {
+      return xs.length;
+    } else {
+      iter = lazy(xs)[Symbol.iterator]();
+      r = 0;
+      while ((x = iter()) !== nil) {
+        ++r;
+      }
+      return r;
+    }
+  };
+  foldl = function(f, init) {
+    return function(xs) {
+      var iter, r, x;
+      r = init;
+      iter = lazy(xs)[Symbol.iterator]();
+      while ((x = iter()) !== nil) {
+        r = f(r, x);
+      }
+      return r;
+    };
+  };
+  best = function(better) {
+    return function(xs) {
+      var it, iter, r;
+      iter = lazy(xs)[Symbol.iterator]();
+      if ((r = iter()) === nil) {
+        return null;
+      }
+      while ((it = iter()) !== nil) {
+        r = better(it, r) ? it : r;
+      }
+      return r;
+    };
+  };
+  all = function(f) {
+    if (typeof f !== 'function') {
+      f = (function(x) {
+        return x === f;
+      });
+    }
+    return function(xs) {
+      var iter, x;
+      iter = lazy(xs)[Symbol.iterator]();
+      while ((x = iter()) !== nil) {
+        if (!f(x)) {
+          return false;
+        }
+      }
+      return true;
+    };
+  };
+  any = function(f) {
+    var all_not;
+    all_not = all(function(x) {
+      return !f(x);
+    });
+    return function(xs) {
+      return !(all_not(xs));
+    };
+  };
+  brk = function() {
+    return brk;
+  };
+  brk.toString = function() {
+    return 'foreach.break';
+  };
+  foreach = function(xs, callback, fruit) {
+    var iter, x;
+    iter = lazy(xs)[Symbol.iterator]();
+    while ((x = iter()) !== nil) {
+      if (callback(x, fruit) === brk) {
+        break;
+      }
+    }
+    return fruit;
+  };
+  Object.defineProperties(foreach, {
+    "break": {
+      writable: false,
+      configurable: false,
+      enumerable: false,
+      value: brk
+    }
+  });
+  return {
+    nil: nil,
+    LazyList: LazyList,
+    Iterator: Iterator,
+    Symbol: Symbol,
+    naturals: naturals,
+    range: range,
+    primes: primes,
+    lazy: lazy,
+    enumerate: enumerate,
+    repeat: repeat,
+    iterate: iterate,
+    random_gen: random_gen,
+    ranged_random_gen: ranged_random_gen,
+    permutation_gen: permutation_gen,
+    cons: cons,
+    concat: concat,
+    map: map,
+    filter: filter,
+    take: take,
+    takeWhile: takeWhile,
+    drop: drop,
+    dropWhile: dropWhile,
+    scanl: scanl,
+    streak: streak,
+    reverse: reverse,
+    join: join,
+    zip: zip,
+    zipWith: zipWith,
+    cartProd: cartProd,
+    list: list,
+    last: last,
+    length: length,
+    foldl: foldl,
+    best: best,
+    all: all,
+    any: any,
+    foreach: foreach
+  };
+};
+
+module.exports = this_module({
+  Symbol: typeof Symbol !== "undefined" && Symbol !== null ? Symbol : {
+    iterator: 'iter'
+  }
+});
+
+
+
+},{}]},{},[1])
+
+
+//# sourceMappingURL=lazy.js.map
 },{}],3:[function(require,module,exports){
 var this_module,
   slice = [].slice;
