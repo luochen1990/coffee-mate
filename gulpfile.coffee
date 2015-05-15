@@ -1,29 +1,15 @@
 require './helpers'
 
-build_target = ['global', 'coffee-mate']
+build_mate = coffee_builder('coffee-mate', standalone: 'CoffeeMate')
+build_global = coffee_builder('global', standalone: '__CoffeeMate')
 
-gulp.task 'build-pretty', ['clean'], ->
-	for filename in build_target
-		gulp.src "src/#{filename}.coffee"
-			.pipe browserify()
-			.pipe rename "#{filename}.js"
-			.pipe sourcemaps.init loadMaps: true
-			.pipe sourcemaps.write './'
-			.pipe gulp.dest './build/'
-
-gulp.task 'build', ['clean', 'build-pretty'], ->
-	for filename in build_target
-		gulp.src "src/#{filename}.coffee"
-			.pipe browserify()
-			.pipe rename "#{filename}.min.js"
-			.pipe sourcemaps.init loadMaps: true
-			.pipe uglify()
-			.pipe sourcemaps.write './'
-			.pipe gulp.dest './build/'
-
-gulp.task 'clean', (done) -> del(['build/*'], done)
+gulp.task 'build', ['clean'], ->
+	build_mate.build()
+	build_global.build()
 
 gulp.task 'watch', ['build'], ->
-	gulp.watch(paths.scripts, ['scripts'])
+	build_mate.watch()
+	build_global.watch()
+#	gulp.watch 'src', ['build']
 
 gulp.task('default', ['build', 'watch'])

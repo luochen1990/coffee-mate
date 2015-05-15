@@ -1,4 +1,4 @@
-require '../build/global.coffee.js'
+require '../build/global.js'
 
 plus = (a, b) -> a + b
 fibs =

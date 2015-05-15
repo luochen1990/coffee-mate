@@ -1,5 +1,8 @@
 require './src/global'
 
+lazy = require 'lazy.coffee'
+log -> lazy
+
 console.log '\n###################### reinforce syntax ##########################\n'
 
 # the log macro
