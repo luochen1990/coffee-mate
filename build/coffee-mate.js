@@ -115,7 +115,7 @@ var this_module,
   slice = [].slice;
 
 this_module = function(arg) {
-  var Iterator, LazyList, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, group, groupBy, groupOn, head, iterate, last, lazy, length, list, map, naturals, nil, partition, permutation_gen, primes, random_gen, range, ranged_random_gen, ref, repeat, reverse, scanl, sort, sortOn, streak, take, takeWhile, zip, zipWith;
+  var Iterator, LazyList, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, group, groupBy, groupOn, head, iterate, last, lazy, length, list, map, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, take, takeWhile, zip, zipWith;
   Symbol = arg.Symbol;
   LazyList = function(f) {
     f[Symbol.iterator] = function() {
@@ -232,17 +232,30 @@ this_module = function(arg) {
       })(range(2, Infinity)));
     })(range(2, Infinity))();
   });
-  lazy = function(arr) {
-    if (typeof arr === 'function') {
-      if (arr[Symbol.iterator] != null) {
-        return arr;
+  lazy = function(xs) {
+    var ref;
+    if (typeof xs === 'function') {
+      if (xs[Symbol.iterator] != null) {
+        return xs;
       } else {
-        return LazyList(arr);
+        return LazyList(xs);
       }
-    } else if (arr[Symbol.iterator] != null) {
+    } else if ((ref = xs.constructor) === Array || ref === String) {
+      return LazyList(function() {
+        var i;
+        i = -1;
+        return Iterator(function() {
+          if ((++i) < xs.length) {
+            return xs[i];
+          } else {
+            return nil;
+          }
+        });
+      });
+    } else if (xs[Symbol.iterator] != null) {
       return LazyList(function() {
         var it;
-        it = arr[Symbol.iterator]();
+        it = xs[Symbol.iterator]();
         return Iterator(function() {
           var r;
           r = it.next();
@@ -254,18 +267,7 @@ this_module = function(arg) {
         });
       });
     } else {
-      return LazyList(function() {
-        var i;
-        i = -1;
-        return Iterator(function() {
-          i += 1;
-          if (i < arr.length) {
-            return arr[i];
-          } else {
-            return nil;
-          }
-        });
-      });
+      throw Error('lazy(xs): xs is neither Array nor Iterable');
     }
   };
   enumerate = function(it) {
@@ -306,28 +308,44 @@ this_module = function(arg) {
       });
     });
   };
-  random_gen = (function() {
-    var hash;
+  randoms = (function() {
+    var hash, normal, salt;
+    salt = Math.PI / 3.0;
     hash = function(x) {
-      x = Math.sin(x) * 1e4;
+      x = Math.sin(x + salt) * 1e4;
       return x - Math.floor(x);
     };
+    normal = function(seed) {
+      return iterate(hash, hash(seed));
+    };
     return function(opts) {
-      var ref, seed;
-      seed = hash((ref = opts != null ? opts.seed : void 0) != null ? ref : Math.random());
-      return iterate(hash, seed);
+      var k, ref, ref1, s, seed;
+      if (opts == null) {
+        opts = 0;
+      }
+      if (typeof opts === 'number') {
+        return normal(opts);
+      } else {
+        seed = (ref = opts.seed) != null ? ref : 0;
+        range = opts.range;
+        if (range != null) {
+          if (typeof range === 'number') {
+            return map(function(x) {
+              return Math.floor(x * range);
+            })(normal(seed));
+          } else {
+            ref1 = [range[0], range[1] - range[0] + 1], s = ref1[0], k = ref1[1];
+            return map(function(x) {
+              return s + Math.floor(x * k);
+            })(normal(seed));
+          }
+        } else {
+          return normal(seed);
+        }
+      }
     };
   })();
-  ranged_random_gen = function(range, opts) {
-    var ref, seed;
-    seed = (ref = opts != null ? opts.seed : void 0) != null ? ref : Math.random();
-    return map(function(x) {
-      return Math.floor(x * range);
-    })(random_gen({
-      seed: seed
-    }));
-  };
-  permutation_gen = (function() {
+  permutations = (function() {
     var next_permutation;
     next_permutation = function(x) {
       var l, m, r, ref, ref1;
@@ -351,7 +369,9 @@ this_module = function(arg) {
       }
       return x;
     };
-    return function(arr) {
+    return function(xs) {
+      var arr;
+      arr = list(xs);
       if (arr.length === 0) {
         return nil;
       } else {
@@ -517,9 +537,22 @@ this_module = function(arg) {
     }
   };
   reverse = function(xs) {
-    var arr;
-    arr = list(lazy(xs));
-    return arr.reverse();
+    var ref;
+    if ((ref = xs.constructor) === Array || ref === String) {
+      return LazyList(function() {
+        var i;
+        i = xs.length;
+        return Iterator(function() {
+          if ((--i) >= 0) {
+            return xs[i];
+          } else {
+            return nil;
+          }
+        });
+      });
+    } else {
+      return list(lazy(xs)).reverse();
+    }
   };
   sort = function(xs) {
     var arr;
@@ -830,22 +863,22 @@ this_module = function(arg) {
         return list(take(n)(xs));
       };
     } else {
-      throw Error('list(xs): xs is neither LazyList nor Array');
+      throw Error('list(xs): xs is neither Array nor Iterable');
     }
   };
   head = function(xs) {
-    var iter, ref1;
-    if (xs[Symbol.iterator] == null) {
-      return (ref1 = xs[0]) != null ? ref1 : nil;
+    var iter, ref1, ref2;
+    if ((ref1 = xs.constructor) === Array || ref1 === String) {
+      return (ref2 = xs[0]) != null ? ref2 : nil;
     } else {
       iter = lazy(xs)[Symbol.iterator]();
       return iter();
     }
   };
   last = function(xs) {
-    var iter, r, ref1, x;
-    if (xs[Symbol.iterator] == null) {
-      return (ref1 = xs[xs.length - 1]) != null ? ref1 : nil;
+    var iter, r, ref1, ref2, x;
+    if ((ref1 = xs.constructor) === Array || ref1 === String) {
+      return (ref2 = xs[xs.length - 1]) != null ? ref2 : nil;
     } else {
       iter = lazy(xs)[Symbol.iterator]();
       r = nil;
@@ -856,8 +889,8 @@ this_module = function(arg) {
     }
   };
   length = function(xs) {
-    var iter, r, x;
-    if (xs[Symbol.iterator] == null) {
+    var iter, r, ref1, x;
+    if ((ref1 = xs.constructor) === Array || ref1 === String) {
       return xs.length;
     } else {
       iter = lazy(xs)[Symbol.iterator]();
@@ -954,9 +987,8 @@ this_module = function(arg) {
     enumerate: enumerate,
     repeat: repeat,
     iterate: iterate,
-    random_gen: random_gen,
-    ranged_random_gen: ranged_random_gen,
-    permutation_gen: permutation_gen,
+    randoms: randoms,
+    permutations: permutations,
     cons: cons,
     map: map,
     filter: filter,
