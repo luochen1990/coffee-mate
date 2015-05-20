@@ -20,8 +20,14 @@ this_module = () ->
 				cache[key] = r
 				r
 
+	fix = Y
+
+	memoFix = (ff) ->
+		f = memoize (ff ((args...) -> f(args...)))
+		return f
+
 	return {
-		church, Y, memoize,
+		church, Y, memoize, fix, memoFix,
 	}
 
 module.exports = this_module()

@@ -1325,7 +1325,7 @@ var this_module,
   slice = [].slice;
 
 this_module = function() {
-  var Y, church, memoize;
+  var Y, church, fix, memoFix, memoize;
   church = function(n) {
     var iter;
     iter = function(f, n, r) {
@@ -1374,10 +1374,22 @@ this_module = function() {
       }
     };
   };
+  fix = Y;
+  memoFix = function(ff) {
+    var f;
+    f = memoize(ff((function() {
+      var args;
+      args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+      return f.apply(null, args);
+    })));
+    return f;
+  };
   return {
     church: church,
     Y: Y,
-    memoize: memoize
+    memoize: memoize,
+    fix: fix,
+    memoFix: memoFix
   };
 };
 
