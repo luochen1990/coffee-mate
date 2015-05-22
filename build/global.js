@@ -1642,7 +1642,7 @@ var this_module,
   slice = [].slice;
 
 this_module = function() {
-  var assert, assertEq, assertEqOn, copy, deepcopy, dict, extend, function_literal, log, override, ref, securely, time_now, update;
+  var assert, assertEq, assertEqOn, copy, deepcopy, dict, extend, function_literal, log, overload, ref, securely, time_now, update;
   function_literal = function(f) {
     var expr;
     expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
@@ -1877,7 +1877,7 @@ this_module = function() {
       return base;
     };
   };
-  override = function(_d) {
+  overload = function(_d) {
     var d, fallback;
     d = copy(_d);
     fallback = d['_'];
@@ -1911,7 +1911,7 @@ this_module = function() {
     securely: securely,
     extend: extend,
     update: update,
-    override: override
+    overload: overload
   };
 };
 

@@ -123,7 +123,7 @@ this_module = () ->
 			base[k] = v for k, v of d
 		return base
 
-	override = (_d) ->
+	overload = (_d) ->
 		d = copy _d
 		fallback = d['_']
 		if fallback?
@@ -138,7 +138,7 @@ this_module = () ->
 					return f args...
 
 	return {
-		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely, extend, update, override,
+		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely, extend, update, overload,
 	}
 
 module.exports = this_module()
