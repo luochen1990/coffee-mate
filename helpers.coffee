@@ -19,8 +19,9 @@ watched_browserify = do ->
 	(opts, piper) ->
 		{src, rename: name} = opts
 
-		b = browserify extend({entries: src, debug: true}) opts
-		w = watchify browserify extend({entries: src, debug: true}) opts, watchify.args
+		defaultOpts = {entries: src, debug: true} #, builtins: []}
+		b = browserify extend({}) defaultOpts, opts
+		w = watchify browserify extend({}) defaultOpts, opts, watchify.args
 
 		warn = (args...) -> gutil.log(args...); gutil.beep()
 		build = -> piper(b.bundle().on('error', warn).pipe(source(name)))
