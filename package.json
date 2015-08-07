@@ -1,6 +1,6 @@
 {
   "name": "coffee-mate",
-  "version": "0.12.4",
+  "version": "0.13.0",
   "description": "Functional Programming in CoffeeScript",
   "author": "luochen1990",
   "license": "MIT",
