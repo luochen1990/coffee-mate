@@ -1,0 +1,1 @@
+{"version":3,"sources":["global.coffee"],"names":[],"mappings":"AACA;AAAA,MAAA,UAAA;;AAAA,EAAA,IAAA,GAAO,OAAA,CAAQ,eAAR,CAAP,CAAA;;AACA,OAAA,SAAA;gBAAA;AAAA,IAAA,MAAO,CAAA,CAAA,CAAP,GAAY,CAAZ,CAAA;AAAA,GADA;AAAA","file":"global.js","sourceRoot":"/source/","sourcesContent":["#require './reinforce'\nmate = require('./coffee-mate')\nglobal[k] = v for k, v of mate\n"]}

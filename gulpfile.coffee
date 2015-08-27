@@ -1,15 +1,27 @@
 require './helpers'
 
-build_mate = coffee_builder('coffee-mate', standalone: 'CoffeeMate')
-build_global = coffee_builder('global', standalone: '__CoffeeMate')
+build_index = coffee_builder('coffee-mate', './build/browser', standalone: 'CoffeeMate')
+build_global = coffee_builder('global', './build/browser', standalone: '__CoffeeMate')
 
-gulp.task 'build', ['clean'], ->
-	build_mate.build()
+gulp.task 'build-nodejs', ->
+	gulp.src "src/**/*.coffee"
+		.pipe plumber()
+		.pipe sourcemaps.init loadMaps: true
+		.pipe coffee()
+		.pipe sourcemaps.write './'
+		.pipe gulp.dest 'build/nodejs/'
+
+gulp.task 'build-browser', ->
+	build_index.build()
 	build_global.build()
 
+gulp.task 'build', ['clean'], ->
+	gulp.run 'build-nodejs'
+	gulp.run 'build-browser'
+
 gulp.task 'watch', ['build'], ->
-	build_mate.watch()
+	build_index.watch()
 	build_global.watch()
-#	gulp.watch 'src', ['build']
+	gulp.watch('src/**/*.coffee', ['build-nodejs'])
 
 gulp.task('default', ['build', 'watch'])
