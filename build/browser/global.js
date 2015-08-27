@@ -1224,18 +1224,18 @@ this_module = function(arg) {
 };
 
 module.exports = this_module({
-  best: require('lazy.coffee').best
+  best: require('lazy-list').best
 });
 
 
-},{"lazy.coffee":3}],5:[function(require,module,exports){
+},{"lazy-list":3}],5:[function(require,module,exports){
 var basics, convertors, funny, lazy, url_helpers, utils;
 
 utils = require('./utils');
 
 basics = require('./basics');
 
-lazy = require('lazy.coffee');
+lazy = require('lazy-list');
 
 funny = require('./funny');
 
@@ -1246,7 +1246,7 @@ url_helpers = require('./url-helpers');
 module.exports = utils.extend({})(utils, basics, lazy, funny, convertors, url_helpers);
 
 
-},{"./basics":4,"./convertors":6,"./funny":7,"./url-helpers":8,"./utils":9,"lazy.coffee":3}],6:[function(require,module,exports){
+},{"./basics":4,"./convertors":6,"./funny":7,"./url-helpers":8,"./utils":9,"lazy-list":3}],6:[function(require,module,exports){
 var this_module;
 
 this_module = function() {

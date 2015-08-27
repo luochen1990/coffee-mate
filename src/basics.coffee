@@ -96,5 +96,5 @@ this_module = ({best}) ->
 	}
 
 module.exports = this_module
-	best: require('lazy.coffee').best
+	best: require('lazy-list').best
 

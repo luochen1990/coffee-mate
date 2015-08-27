@@ -5,7 +5,7 @@ utils = require('./utils');
 
 basics = require('./basics');
 
-lazy = require('lazy.coffee');
+lazy = require('lazy-list');
 
 funny = require('./funny');
 
@@ -16,7 +16,7 @@ url_helpers = require('./url-helpers');
 module.exports = utils.extend({})(utils, basics, lazy, funny, convertors, url_helpers);
 
 
-},{"./basics":4,"./convertors":5,"./funny":6,"./url-helpers":7,"./utils":8,"lazy.coffee":3}],2:[function(require,module,exports){
+},{"./basics":4,"./convertors":5,"./funny":6,"./url-helpers":7,"./utils":8,"lazy-list":3}],2:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1227,11 +1227,11 @@ this_module = function(arg) {
 };
 
 module.exports = this_module({
-  best: require('lazy.coffee').best
+  best: require('lazy-list').best
 });
 
 
-},{"lazy.coffee":3}],5:[function(require,module,exports){
+},{"lazy-list":3}],5:[function(require,module,exports){
 var this_module;
 
 this_module = function() {

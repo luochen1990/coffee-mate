@@ -5,7 +5,7 @@
 
   basics = require('./basics');
 
-  lazy = require('lazy.coffee');
+  lazy = require('lazy-list');
 
   funny = require('./funny');
 
