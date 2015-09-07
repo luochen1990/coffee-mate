@@ -1,7 +1,7 @@
 this_module = () ->
 	uri_encoder = (component_packer = str) ->
 		(obj) ->
-			("#{encodeURIComponent(k)}=#{encodeURIComponent component_packer v}" for k, v of obj).join('&')
+			("#{encodeURIComponent(k)}=#{encodeURIComponent component_packer v}" for k, v of obj when v isnt undefined).join('&')
 
 	uri_decoder = (component_unpacker = ((s) -> s)) ->
 		(str) ->

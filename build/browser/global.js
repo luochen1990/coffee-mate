@@ -1404,7 +1404,9 @@ this_module = function() {
         results = [];
         for (k in obj) {
           v = obj[k];
-          results.push((encodeURIComponent(k)) + "=" + (encodeURIComponent(component_packer(v))));
+          if (v !== void 0) {
+            results.push((encodeURIComponent(k)) + "=" + (encodeURIComponent(component_packer(v))));
+          }
         }
         return results;
       })()).join('&');
