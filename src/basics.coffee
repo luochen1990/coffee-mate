@@ -76,7 +76,7 @@ this_module = ({best, foldl}) ->
 		seek, pluck,
 		equal, notEqual, lessThan, lessEqual, greaterThan, greaterEqual,
 		plus, minus, abs, floor, ceil, precise,
-		sum, max, min, max_index, min_index,
+		sum
 	}
 
 module.exports = this_module

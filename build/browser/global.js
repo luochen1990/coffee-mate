@@ -1176,11 +1176,7 @@ this_module = function(arg) {
     floor: floor,
     ceil: ceil,
     precise: precise,
-    sum: sum,
-    max: max,
-    min: min,
-    max_index: max_index,
-    min_index: min_index
+    sum: sum
   };
 };
 
