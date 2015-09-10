@@ -1,4 +1,4 @@
-this_module = ({best}) ->
+this_module = ({best, foldl}) ->
 	# transformers
 	flip = (f) ->
 		(x) -> (y) -> f(y)(x)
@@ -68,23 +68,7 @@ this_module = ({best}) ->
 		(arr...) ->
 			f(if arr.length == 1 and arr.first instanceof Array then arr.first else arr)
 
-	sum = accept_multi_or_array (arr) ->
-		arr = arr.first if arr.length == 1 and arr.first instanceof Array
-		r = 0
-		r += x for x in arr
-		r
-
-	max = accept_multi_or_array (arr) ->
-		best((a, b) -> a > b) arr
-
-	min = accept_multi_or_array (arr) ->
-		best((a, b) -> a < b) arr
-
-	max_index = accept_multi_or_array (arr) ->
-		best((i, j) -> arr[i] > arr[j]) [0...arr.length]
-
-	min_index = accept_multi_or_array (arr) ->
-		best((i, j) -> arr[i] < arr[j]) [0...arr.length]
+	sum = foldl(((a, b) -> a + b), 0)
 
 	return {
 		flip, combine,
@@ -97,4 +81,5 @@ this_module = ({best}) ->
 
 module.exports = this_module
 	best: require('lazy-list').best
+	foldl: require('lazy-list').foldl
 

@@ -1,6 +1,6 @@
 {
   "name": "coffee-mate",
-  "version": "0.14.1",
+  "version": "0.14.2",
   "description": "Functional Programming in CoffeeScript",
   "author": "luochen1990",
   "license": "MIT",
@@ -19,6 +19,11 @@
     "random"
   ],
   "main": "./build/nodejs/coffee-mate.js",
+  "scripts": {
+    "build": "gulp build",
+    "watch": "gulp watch",
+    "test": "mocha --recursive"
+  },
   "browserify": {
     "transform": [
       "coffeeify"
