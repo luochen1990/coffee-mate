@@ -9,10 +9,13 @@ this_module = () ->
 	json = (it) -> JSON.stringify(it)
 	jsonWith = (indent, convertor) -> (it) -> JSON.stringify(it, convertor, indent)
 	prettyJson = (it) -> JSON.stringify(it, null, 4)
+	flatJson = do ->
+		flat = (k, v) -> if typeof v is 'string' then (try JSON.parse(v) catch then v) else v
+		(it) -> JSON.stringify(it, flat, 4)
 	obj = (s) -> JSON.parse(s)
 
 	return {
-		int, float, bool, str, hex, ord, chr, json, jsonWith, prettyJson, obj,
+		int, float, bool, str, hex, ord, chr, json, jsonWith, prettyJson, flatJson, obj,
 	}
 
 module.exports = this_module()
