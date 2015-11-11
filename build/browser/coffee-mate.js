@@ -114,14 +114,32 @@ process.umask = function() { return 0; };
     slice = [].slice;
 
   this_module = function(arg) {
-    var Iterator, LazyList, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, take, takeWhile, zip, zipWith;
+    var CustomErrorType, Iterator, LazyList, ListError, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, take, takeWhile, zip, zipWith;
     Symbol = arg.Symbol;
+    CustomErrorType = function(errorName) {
+      return function(msg) {
+        var CustomError;
+        CustomError = function(msg) {
+          var self;
+          self = new Error(msg);
+          self.name = errorName;
+          self.__proto__ = CustomError.prototype;
+          return self;
+        };
+        CustomError.prototype.__proto__ = Error.prototype;
+        return new CustomError(msg);
+      };
+    };
+    ListError = CustomErrorType('ListError');
     LazyList = function(f) {
       f[Symbol.iterator] = function() {
         return f();
       };
       f.toString = function() {
         return "LazyList";
+      };
+      f.toJSON = function() {
+        return list(f);
       };
       return f;
     };
@@ -199,7 +217,7 @@ process.umask = function() { return 0; };
           var i, start, step, stop;
           start = args[0], stop = args[1], step = args[2];
           if (stop !== start && (stop - start) * step < 0) {
-            throw 'ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE';
+            throw ListError('ERR IN range(): YOU ARE CREATING AN UNLIMITTED RANGE');
           }
           i = start - step;
           if (start < stop) {
@@ -266,7 +284,7 @@ process.umask = function() { return 0; };
           });
         });
       } else {
-        throw Error('lazy(xs): xs is neither Array nor Iterable');
+        throw ListError('lazy(xs): xs is neither Array nor Iterable');
       }
     };
     enumerate = function(it) {
@@ -496,18 +514,20 @@ process.umask = function() { return 0; };
         });
       };
     };
-    scanl = function(f, r) {
-      return function(xs) {
-        return LazyList(function() {
-          var iter;
-          iter = lazy(xs)[Symbol.iterator]();
-          return Iterator(function() {
-            var got, x;
-            got = r;
-            r = (x = iter()) !== nil ? f(r, x) : nil;
-            return got;
+    scanl = function(op) {
+      return function(r) {
+        return function(xs) {
+          return LazyList(function() {
+            var iter;
+            iter = lazy(xs)[Symbol.iterator]();
+            return Iterator(function() {
+              var got, x;
+              got = r;
+              r = (x = iter()) !== nil ? op(r)(x) : nil;
+              return got;
+            });
           });
-        });
+        };
       };
     };
     streak = function(n) {
@@ -818,13 +838,7 @@ process.umask = function() { return 0; };
           return list(take(n)(xs));
         };
       } else {
-        throw Error({
-          message: 'list(xs): xs is neither Array nor Iterable',
-          info: {
-            "xs": xs,
-            "xs.constructor": xs != null ? xs.constructor : void 0
-          }
-        });
+        throw ListError('list(xs): xs is neither Array nor Iterable');
       }
     };
     head = function(xs) {
@@ -833,28 +847,36 @@ process.umask = function() { return 0; };
         if (xs.length > 0) {
           return xs[0];
         } else {
-          throw "Error: head() used on empty list.";
+          throw ListError("head() used on empty list.");
         }
       } else {
         iter = lazy(xs)[Symbol.iterator]();
         if ((r = iter()) !== nil) {
           return r;
         } else {
-          throw "Error: head() used on empty list.";
+          throw ListError("head() used on empty list.");
         }
       }
     };
     last = function(xs) {
-      var iter, r, ref1, ref2, x;
+      var iter, r, ref1, x;
       if ((ref1 = xs.constructor) === Array || ref1 === String) {
-        return (ref2 = xs[xs.length - 1]) != null ? ref2 : nil;
+        if (xs.length > 0) {
+          return xs[xs.length - 1];
+        } else {
+          throw ListError("last() used on empty list.");
+        }
       } else {
         iter = lazy(xs)[Symbol.iterator]();
         r = nil;
         while ((x = iter()) !== nil) {
           r = x;
         }
-        return r;
+        if (r !== nil) {
+          return r;
+        } else {
+          throw ListError("last() used on empty list.");
+        }
       }
     };
     length = function(xs) {
@@ -870,15 +892,17 @@ process.umask = function() { return 0; };
         return r;
       }
     };
-    foldl = function(f, init) {
-      return function(xs) {
-        var iter, r, x;
-        r = init;
-        iter = lazy(xs)[Symbol.iterator]();
-        while ((x = iter()) !== nil) {
-          r = f(r, x);
-        }
-        return r;
+    foldl = function(op) {
+      return function(init) {
+        return function(xs) {
+          var iter, r, x;
+          r = init;
+          iter = lazy(xs)[Symbol.iterator]();
+          while ((x = iter()) !== nil) {
+            r = op(r)(x);
+          }
+          return r;
+        };
       };
     };
     best = function(better) {
@@ -942,7 +966,9 @@ process.umask = function() { return 0; };
       foreach(pairs, function(arg1) {
         var k, v;
         k = arg1[0], v = arg1[1];
-        return r[k] = v;
+        if (v !== void 0) {
+          return r[k] = v;
+        }
       });
       return r;
     };
@@ -1034,8 +1060,11 @@ var this_module,
   slice = [].slice;
 
 this_module = function(arg) {
-  var abs, accept_multi_or_array, best, ceil, combine, curry2, curry3, equal, flip, floor, foldl, greaterEqual, greaterThan, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
-  best = arg.best, foldl = arg.foldl;
+  var abs, ceil, combine, curry2, curry3, equal, flip, floor, foldl, greaterEqual, greaterThan, identity, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
+  foldl = arg.foldl;
+  identity = function(x) {
+    return x;
+  };
   flip = function(f) {
     return function(x) {
       return function(y) {
@@ -1128,14 +1157,14 @@ this_module = function(arg) {
       return x >= it;
     };
   };
-  plus = function(it) {
-    return function(x) {
-      return x + it;
+  plus = function(x) {
+    return function(y) {
+      return x + y;
     };
   };
-  minus = function(it) {
-    return function(x) {
-      return x - it;
+  minus = function(x) {
+    return function(y) {
+      return x - y;
     };
   };
   abs = Math.abs;
@@ -1146,17 +1175,9 @@ this_module = function(arg) {
       return parseFloat(x.toPrecision(n));
     };
   };
-  accept_multi_or_array = function(f) {
-    return function() {
-      var arr;
-      arr = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-      return f(arr.length === 1 && arr.first instanceof Array ? arr.first : arr);
-    };
-  };
-  sum = foldl((function(a, b) {
-    return a + b;
-  }), 0);
+  sum = foldl(plus)(0);
   return {
+    identity: identity,
     flip: flip,
     combine: combine,
     curry2: curry2,
@@ -1184,7 +1205,6 @@ this_module = function(arg) {
 };
 
 module.exports = this_module({
-  best: require('lazy-list').best,
   foldl: require('lazy-list').foldl
 });
 

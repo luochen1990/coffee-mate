@@ -1,4 +1,6 @@
-this_module = ({best, foldl}) ->
+this_module = ({foldl}) ->
+	identity = (x) -> x
+
 	# transformers
 	flip = (f) ->
 		(x) -> (y) -> f(y)(x)
@@ -51,11 +53,8 @@ this_module = ({best, foldl}) ->
 		(x) -> x >= it
 
 	# math
-	plus = (it) ->
-		(x) -> x + it
-
-	minus = (it) ->
-		(x) -> x - it
+	plus = (x) -> (y) -> x + y
+	minus = (x) -> (y) -> x - y
 
 	abs = Math.abs
 	floor = Math.floor
@@ -64,14 +63,10 @@ this_module = ({best, foldl}) ->
 	precise = (n) ->
 		(x) -> parseFloat x.toPrecision(n)
 
-	accept_multi_or_array = (f) ->
-		(arr...) ->
-			f(if arr.length == 1 and arr.first instanceof Array then arr.first else arr)
-
-	sum = foldl(((a, b) -> a + b), 0)
+	sum = foldl(plus)(0)
 
 	return {
-		flip, combine,
+		identity, flip, combine,
 		curry2, curry3, uncurry2, uncurry3, pack, unpack,
 		seek, pluck,
 		equal, notEqual, lessThan, lessEqual, greaterThan, greaterEqual,
@@ -80,6 +75,5 @@ this_module = ({best, foldl}) ->
 	}
 
 module.exports = this_module
-	best: require('lazy-list').best
 	foldl: require('lazy-list').foldl
 

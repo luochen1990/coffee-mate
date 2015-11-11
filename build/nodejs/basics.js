@@ -3,8 +3,11 @@
     slice = [].slice;
 
   this_module = function(arg) {
-    var abs, accept_multi_or_array, best, ceil, combine, curry2, curry3, equal, flip, floor, foldl, greaterEqual, greaterThan, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
-    best = arg.best, foldl = arg.foldl;
+    var abs, ceil, combine, curry2, curry3, equal, flip, floor, foldl, greaterEqual, greaterThan, identity, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
+    foldl = arg.foldl;
+    identity = function(x) {
+      return x;
+    };
     flip = function(f) {
       return function(x) {
         return function(y) {
@@ -97,14 +100,14 @@
         return x >= it;
       };
     };
-    plus = function(it) {
-      return function(x) {
-        return x + it;
+    plus = function(x) {
+      return function(y) {
+        return x + y;
       };
     };
-    minus = function(it) {
-      return function(x) {
-        return x - it;
+    minus = function(x) {
+      return function(y) {
+        return x - y;
       };
     };
     abs = Math.abs;
@@ -115,17 +118,9 @@
         return parseFloat(x.toPrecision(n));
       };
     };
-    accept_multi_or_array = function(f) {
-      return function() {
-        var arr;
-        arr = 1 <= arguments.length ? slice.call(arguments, 0) : [];
-        return f(arr.length === 1 && arr.first instanceof Array ? arr.first : arr);
-      };
-    };
-    sum = foldl((function(a, b) {
-      return a + b;
-    }), 0);
+    sum = foldl(plus)(0);
     return {
+      identity: identity,
       flip: flip,
       combine: combine,
       curry2: curry2,
@@ -153,7 +148,6 @@
   };
 
   module.exports = this_module({
-    best: require('lazy-list').best,
     foldl: require('lazy-list').foldl
   });
 

@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "lazy-list": "^0.2.1"
+    "lazy-list": "^0.4.0"
   },
   "devDependencies": {
     "browserify": "^10.2.0",
