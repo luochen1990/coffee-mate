@@ -1,6 +1,9 @@
 this_module = ({foldl}) ->
 	identity = (x) -> x
 
+	format = (form) -> (env) ->
+		form.replace /\{(\w+)\}/g, (m, i) -> env[i] ? m
+
 	# transformers
 	flip = (f) ->
 		(x) -> (y) -> f(y)(x)
@@ -66,7 +69,8 @@ this_module = ({foldl}) ->
 	sum = foldl(plus)(0)
 
 	return {
-		identity, flip, combine,
+		identity, format,
+		flip, combine,
 		curry2, curry3, uncurry2, uncurry3, pack, unpack,
 		seek, pluck,
 		equal, notEqual, lessThan, lessEqual, greaterThan, greaterEqual,

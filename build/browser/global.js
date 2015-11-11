@@ -1057,10 +1057,18 @@ var this_module,
   slice = [].slice;
 
 this_module = function(arg) {
-  var abs, ceil, combine, curry2, curry3, equal, flip, floor, foldl, greaterEqual, greaterThan, identity, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
+  var abs, ceil, combine, curry2, curry3, equal, flip, floor, foldl, format, greaterEqual, greaterThan, identity, lessEqual, lessThan, minus, notEqual, pack, pluck, plus, precise, seek, sum, uncurry2, uncurry3, unpack;
   foldl = arg.foldl;
   identity = function(x) {
     return x;
+  };
+  format = function(form) {
+    return function(env) {
+      return form.replace(/\{(\w+)\}/g, function(m, i) {
+        var ref;
+        return (ref = env[i]) != null ? ref : m;
+      });
+    };
   };
   flip = function(f) {
     return function(x) {
@@ -1175,6 +1183,7 @@ this_module = function(arg) {
   sum = foldl(plus)(0);
   return {
     identity: identity,
+    format: format,
     flip: flip,
     combine: combine,
     curry2: curry2,
