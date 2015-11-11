@@ -6,11 +6,13 @@ this_module = () ->
 	hex = (x) -> x.toString(16)
 	ord = (c) -> c.charCodeAt()
 	chr = (x) -> String.fromCharCode(x)
-	json = (it, indent) -> JSON.stringify(it, null, indent)
+	json = (it) -> JSON.stringify(it)
+	jsonWith = (indent, convertor) -> (it) -> JSON.stringify(it, convertor, indent)
+	prettyJson = (it) -> JSON.stringify(it, null, 4)
 	obj = (s) -> JSON.parse(s)
 
 	return {
-		int, float, bool, str, hex, ord, chr, json, obj,
+		int, float, bool, str, hex, ord, chr, json, jsonWith, prettyJson, obj,
 	}
 
 module.exports = this_module()

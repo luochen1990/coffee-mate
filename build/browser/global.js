@@ -1208,7 +1208,7 @@ module.exports = utils.extend({})(utils, basics, lazy, funny, convertors, url_he
 var this_module;
 
 this_module = function() {
-  var bool, chr, float, hex, int, json, obj, ord, str;
+  var bool, chr, float, hex, int, json, jsonWith, obj, ord, prettyJson, str;
   int = function(s, base) {
     var r;
     if (typeof s === 'string') {
@@ -1248,8 +1248,16 @@ this_module = function() {
   chr = function(x) {
     return String.fromCharCode(x);
   };
-  json = function(it, indent) {
-    return JSON.stringify(it, null, indent);
+  json = function(it) {
+    return JSON.stringify(it);
+  };
+  jsonWith = function(indent, convertor) {
+    return function(it) {
+      return JSON.stringify(it, convertor, indent);
+    };
+  };
+  prettyJson = function(it) {
+    return JSON.stringify(it, null, 4);
   };
   obj = function(s) {
     return JSON.parse(s);
@@ -1263,6 +1271,8 @@ this_module = function() {
     ord: ord,
     chr: chr,
     json: json,
+    jsonWith: jsonWith,
+    prettyJson: prettyJson,
     obj: obj
   };
 };
