@@ -1,8 +1,19 @@
 this_module = () ->
-	function_literal = (f) ->
-		expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1')
-		expr = expr.replace(/[\r\n]{1,2}\s*/g, '') if expr.length <= 100
-		return expr
+	simpl = (lit) ->
+		lit = lit.replace(/^\s*\(\s*function\s*\(\s*\)\s*{\s*return\s*([^]*?);?\s*}\s*\)\s*\(\s*\)\s*$/, '$1')
+		lit = lit.replace(/^\s*\(\s*\(\s*\)\s*=>\s*{\s*return\s*([^]*?);?\s*}\s*\)\s*\(\s*\)\s*$/, '$1')
+		lit = lit.replace(/^\s*\(\s*\(\s*\)\s*=>\s*([^]*?)\s*\)\s*\(\s*\)\s*$/, '$1')
+		return lit
+
+	literal = (thunk) ->
+		s0 = "(#{thunk.toString()})()"
+		s1 = simpl(s0)
+		until s1 == s0
+			s0 = s1
+			s1 = simpl(s1)
+		s2 = s0.replace(/[\r\n]{1,2}\s*/g, '') #inline
+		r = if s2.length <= 60 then s2 else s0
+		return r
 
 	time_now = ->
 		(new Date).getTime()
@@ -43,7 +54,7 @@ this_module = () ->
 				ball = []
 				for f in args
 					if typeof f == 'function'
-						expr = function_literal(f)
+						expr = literal(f)
 						start_time = time_now()
 						eval_result = f()
 						time_used = time_now() - start_time
@@ -63,35 +74,46 @@ this_module = () ->
 		return got
 
 	assert = (f, msg) ->
-		[f, msg] = [msg, f] if f not instanceof Function
+		[msg, f] = [f, msg] if f not instanceof Function
 		try
 			r = f()
 		catch e
-			throw Error "Assertion #{msg ? function_literal(f)} Unknown:\n#{e}"
-		if not r
-			throw Error "Assertion #{msg ? function_literal(f)} Failed!"
+			throw Error "Assertion Not Available: #{literal(f)}\n  Inner Error: #{e}"
+		if not (r is true)
+			if msg? and msg instanceof Function
+				msg(literal(f))
+			else
+				throw Error "Assertion Failed: #{msg ? literal(f)}"
 
-	assertEq = (l, r) ->
+	assertEq = (l, r, msg) ->
+		[msg, l, r] = [l, r, msg] if l not instanceof Function
 		try
 			lv = l()
 			rv = r()
 		catch e
-			throw Error "Equation Between #{function_literal(l)} And #{function_literal(r)} Unknown:\n#{e}"
+			throw Error "Equation Not Available: ( #{literal(l)} ) == ( #{literal(r)} )\n  Inner Error: #{e}"
 		if lv isnt rv
-			throw Error "Equation Failed:\n\t#{function_literal(l)} IS #{lv} BUT\n\t#{function_literal(r)} IS #{rv}."
+			if msg? and msg instanceof Function
+				msg(literal(l), literal(r))
+			else
+				throw Error "Equation Does Not Hold:\n  Left Expr  : #{literal(l)}\n  Right Expr : #{literal(r)}\n  Left Value : #{lv}\n  Right Value: #{rv}\n"
 
-	assertEqOn = (f) -> (l, r) ->
+	assertEqOn = (f) -> (l, r, msg) ->
+		[msg, l, r] = [l, r, msg] if l not instanceof Function
 		try
 			lv = l()
 			rv = r()
 			flv = f(lv)
 			frv = f(rv)
 		catch e
-			throw Error "MAPPED Equation Between #{function_literal(l)} And #{function_literal(r)} Unknown:\n#{e}"
+			throw Error "Equation Not Available: ( #{literal(l)} ) == ( #{literal(r)} ) ON #{f.name}\n  Inner Error: #{e}"
 		if flv isnt frv
-			throw Error "Equation Failed:\n\t#{function_literal(l)} IS #{lv} AND MAPPED TO #{flv} BUT\n\t#{function_literal(r)} IS #{rv} AND MAPPED TO #{frv}."
+			if msg? and msg instanceof Function
+				msg(literal(l), literal(r), f.name)
+			else
+				throw Error "Equation Does Not Hold:\n  Left Expr  : #{literal(l)}\n  Right Expr : #{literal(r)}\n  Compared On: #{f.name}\n  Left Value : #{flv}\n  Right Value: #{frv}\n"
 
-	securely = (f) -> # ensure a function not to modify it's arguments
+	purify = (f) -> # ensure a function not to modify it's arguments
 		(args...) ->
 			args = deepcopy args
 			f(args...)
@@ -138,7 +160,7 @@ this_module = () ->
 					return f args...
 
 	return {
-		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, securely, extend, update, overload,
+		log, assert, assertEq, assertEqOn, dict, copy, deepcopy, purify, extend, update, overload,
 	}
 
 module.exports = this_module()
