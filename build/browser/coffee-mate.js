@@ -114,7 +114,7 @@ process.umask = function() { return 0; };
     slice = [].slice;
 
   this_module = function(arg) {
-    var CustomErrorType, Iterator, LazyList, ListError, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, superset, tail, take, takeWhile, zip, zipWith;
+    var CustomErrorType, Iterator, LazyList, ListError, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, powerset, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, tail, take, takeWhile, zip, zipWith;
     Symbol = arg.Symbol;
     CustomErrorType = function(errorName) {
       return function(msg) {
@@ -397,12 +397,12 @@ process.umask = function() { return 0; };
         }
       };
     })();
-    superset = function(xs) {
+    powerset = function(xs) {
       var ss;
       if (length(xs) === 0) {
         return [[]];
       } else {
-        ss = superset(drop(1)(xs));
+        ss = powerset(drop(1)(xs));
         return concat([ss, map(cons(head(xs)))(ss)]);
       }
     };
@@ -1020,7 +1020,7 @@ process.umask = function() { return 0; };
       iterate: iterate,
       randoms: randoms,
       permutations: permutations,
-      superset: superset,
+      powerset: powerset,
       cons: cons,
       map: map,
       filter: filter,
