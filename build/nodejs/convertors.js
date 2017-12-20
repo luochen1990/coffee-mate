@@ -59,7 +59,7 @@
         if (typeof v === 'string') {
           try {
             return JSON.parse(v);
-          } catch (_error) {
+          } catch (error) {
             return v;
           }
         } else {

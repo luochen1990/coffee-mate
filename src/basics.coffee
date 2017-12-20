@@ -2,7 +2,7 @@ this_module = ({foldl}) ->
 	identity = (x) -> x
 
 	format = (form) -> (env) ->
-		form.replace /\{(\w+)\}/g, (m, i) -> env[i] ? m
+		form.replace /\{(\w+)\}/g, (s, k) -> env[k] ? s
 
 	# transformers
 	flip = (f) ->

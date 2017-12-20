@@ -103,12 +103,13 @@
           var init;
           init = new Object;
           return function(equal) {
-            var i, j, l, len, len1, o, t, x;
+            var i, j, l, len, len1, o, ref, ref1, t, x;
             i = 0;
             t = init;
             if (equal == null) {
-              for (j = l = 0, len = this.length; l < len; j = ++l) {
-                x = this[j];
+              ref = this;
+              for (j = l = 0, len = ref.length; l < len; j = ++l) {
+                x = ref[j];
                 if (!(x !== t)) {
                   continue;
                 }
@@ -116,8 +117,9 @@
                 i += 1;
               }
             } else {
-              for (j = o = 0, len1 = this.length; o < len1; j = ++o) {
-                x = this[j];
+              ref1 = this;
+              for (j = o = 0, len1 = ref1.length; o < len1; j = ++o) {
+                x = ref1[j];
                 if (!(t === init || !equal(x, t))) {
                   continue;
                 }
@@ -125,7 +127,7 @@
                 i += 1;
               }
             }
-            this.splice(i, Infinity);
+            this.splice(i, 2e308);
             return this;
           };
         })()

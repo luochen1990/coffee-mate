@@ -10,9 +10,9 @@
     };
     format = function(form) {
       return function(env) {
-        return form.replace(/\{(\w+)\}/g, function(m, i) {
+        return form.replace(/\{(\w+)\}/g, function(s, k) {
           var ref;
-          return (ref = env[i]) != null ? ref : m;
+          return (ref = env[k]) != null ? ref : s;
         });
       };
     };

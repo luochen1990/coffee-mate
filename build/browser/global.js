@@ -111,7 +111,7 @@ process.umask = function() { return 0; };
     slice = [].slice;
 
   this_module = function(arg) {
-    var CustomErrorType, Iterator, LazyList, ListError, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, take, takeWhile, zip, zipWith;
+    var CustomErrorType, Iterator, LazyList, ListError, Symbol, all, any, best, brk, cartProd, concat, cons, drop, dropWhile, enumerate, filter, foldl, foreach, fromList, groupOn, head, iterate, last, lazy, length, list, map, maximum, maximumOn, minimum, minimumOn, naturals, nil, partition, permutations, primes, randoms, range, ref, repeat, reverse, scanl, sort, sortOn, streak, streak2, superset, tail, take, takeWhile, zip, zipWith;
     Symbol = arg.Symbol;
     CustomErrorType = function(errorName) {
       return function(msg) {
@@ -243,8 +243,8 @@ process.umask = function() { return 0; };
           return x % p !== 0;
         })(takeWhile(function(p) {
           return p * p <= x;
-        })(range(2, Infinity)));
-      })(range(2, Infinity))();
+        })(range(2, 2e308)));
+      })(range(2, 2e308))();
     });
     lazy = function(xs) {
       var ref;
@@ -394,6 +394,15 @@ process.umask = function() { return 0; };
         }
       };
     })();
+    superset = function(xs) {
+      var ss;
+      if (length(xs) === 0) {
+        return [[]];
+      } else {
+        ss = superset(drop(1)(xs));
+        return concat([ss, map(cons(head(xs)))(ss)]);
+      }
+    };
     take = function(n) {
       return function(xs) {
         return LazyList(function() {
@@ -855,6 +864,7 @@ process.umask = function() { return 0; };
         }
       }
     };
+    tail = drop(1);
     last = function(xs) {
       var iter, r, ref1, x;
       if ((ref1 = xs.constructor) === Array || ref1 === String) {
@@ -922,7 +932,7 @@ process.umask = function() { return 0; };
     };
     minimumOn = function(f) {
       return best(function(a, b) {
-        return f(a) > f(b);
+        return f(a) < f(b);
       });
     };
     maximum = best(function(x, y) {
@@ -1007,11 +1017,13 @@ process.umask = function() { return 0; };
       iterate: iterate,
       randoms: randoms,
       permutations: permutations,
+      superset: superset,
       cons: cons,
       map: map,
       filter: filter,
       take: take,
       takeWhile: takeWhile,
+      tail: tail,
       drop: drop,
       dropWhile: dropWhile,
       scanl: scanl,
@@ -1052,6 +1064,7 @@ process.umask = function() { return 0; };
 }).call(this);
 
 
+
 },{}],4:[function(require,module,exports){
 var this_module,
   slice = [].slice;
@@ -1064,9 +1077,9 @@ this_module = function(arg) {
   };
   format = function(form) {
     return function(env) {
-      return form.replace(/\{(\w+)\}/g, function(m, i) {
+      return form.replace(/\{(\w+)\}/g, function(s, k) {
         var ref;
-        return (ref = env[i]) != null ? ref : m;
+        return (ref = env[k]) != null ? ref : s;
       });
     };
   };
@@ -1294,7 +1307,7 @@ this_module = function() {
       if (typeof v === 'string') {
         try {
           return JSON.parse(v);
-        } catch (_error) {
+        } catch (error) {
           return v;
         }
       } else {
@@ -1460,14 +1473,24 @@ var this_module,
   slice = [].slice;
 
 this_module = function() {
-  var assert, assertEq, assertEqOn, copy, deepcopy, dict, extend, function_literal, log, overload, ref, securely, time_now, update;
-  function_literal = function(f) {
-    var expr;
-    expr = f.toString().replace(/^\s*function\s?\(\s?\)\s?{\s*return\s*([^]*?);?\s*}$/, '$1');
-    if (expr.length <= 100) {
-      expr = expr.replace(/[\r\n]{1,2}\s*/g, '');
+  var assert, assertEq, assertEqOn, copy, deepcopy, dict, extend, literal, log, overload, purify, ref, simpl, time_now, update;
+  simpl = function(lit) {
+    lit = lit.replace(/^\s*\(\s*function\s*\(\s*\)\s*{\s*return\s*([^]*?);?\s*}\s*\)\s*\(\s*\)\s*$/, '$1');
+    lit = lit.replace(/^\s*\(\s*\(\s*\)\s*=>\s*{\s*return\s*([^]*?);?\s*}\s*\)\s*\(\s*\)\s*$/, '$1');
+    lit = lit.replace(/^\s*\(\s*\(\s*\)\s*=>\s*([^]*?)\s*\)\s*\(\s*\)\s*$/, '$1');
+    return lit;
+  };
+  literal = function(thunk) {
+    var r, s0, s1, s2;
+    s0 = "(" + (thunk.toString()) + ")()";
+    s1 = simpl(s0);
+    while (s1 !== s0) {
+      s0 = s1;
+      s1 = simpl(s1);
     }
-    return expr;
+    s2 = s0.replace(/[\r\n]{1,2}\s*/g, '');
+    r = s2.length <= 60 ? s2 : s0;
+    return r;
   };
   time_now = function() {
     return (new Date).getTime();
@@ -1531,7 +1554,7 @@ this_module = function() {
         for (i = 0, len = args.length; i < len; i++) {
           f = args[i];
           if (typeof f === 'function') {
-            expr = function_literal(f);
+            expr = literal(f);
             start_time = time_now();
             eval_result = f();
             time_used = time_now() - start_time;
@@ -1561,49 +1584,67 @@ this_module = function() {
   assert = function(f, msg) {
     var e, r, ref;
     if (!(f instanceof Function)) {
-      ref = [msg, f], f = ref[0], msg = ref[1];
+      ref = [f, msg], msg = ref[0], f = ref[1];
     }
     try {
       r = f();
-    } catch (_error) {
-      e = _error;
-      throw Error("Assertion " + (msg != null ? msg : function_literal(f)) + " Unknown:\n" + e);
+    } catch (error) {
+      e = error;
+      throw Error("Assertion Not Available: " + (literal(f)) + "\n  Inner Error: " + e);
     }
-    if (!r) {
-      throw Error("Assertion " + (msg != null ? msg : function_literal(f)) + " Failed!");
+    if (!(r === true)) {
+      if ((msg != null) && msg instanceof Function) {
+        return msg(literal(f));
+      } else {
+        throw Error("Assertion Failed: " + (msg != null ? msg : literal(f)));
+      }
     }
   };
-  assertEq = function(l, r) {
-    var e, lv, rv;
+  assertEq = function(l, r, msg) {
+    var e, lv, ref, rv;
+    if (!(l instanceof Function)) {
+      ref = [l, r, msg], msg = ref[0], l = ref[1], r = ref[2];
+    }
     try {
       lv = l();
       rv = r();
-    } catch (_error) {
-      e = _error;
-      throw Error("Equation Between " + (function_literal(l)) + " And " + (function_literal(r)) + " Unknown:\n" + e);
+    } catch (error) {
+      e = error;
+      throw Error("Equation Not Available: ( " + (literal(l)) + " ) == ( " + (literal(r)) + " )\n  Inner Error: " + e);
     }
     if (lv !== rv) {
-      throw Error("Equation Failed:\n\t" + (function_literal(l)) + " IS " + lv + " BUT\n\t" + (function_literal(r)) + " IS " + rv + ".");
+      if ((msg != null) && msg instanceof Function) {
+        return msg(literal(l), literal(r));
+      } else {
+        throw Error("Equation Does Not Hold:\n  Left Expr  : " + (literal(l)) + "\n  Right Expr : " + (literal(r)) + "\n  Left Value : " + lv + "\n  Right Value: " + rv + "\n");
+      }
     }
   };
   assertEqOn = function(f) {
-    return function(l, r) {
-      var e, flv, frv, lv, rv;
+    return function(l, r, msg) {
+      var e, flv, frv, lv, ref, rv;
+      if (!(l instanceof Function)) {
+        ref = [l, r, msg], msg = ref[0], l = ref[1], r = ref[2];
+      }
       try {
         lv = l();
         rv = r();
         flv = f(lv);
         frv = f(rv);
-      } catch (_error) {
-        e = _error;
-        throw Error("MAPPED Equation Between " + (function_literal(l)) + " And " + (function_literal(r)) + " Unknown:\n" + e);
+      } catch (error) {
+        e = error;
+        throw Error("Equation Not Available: ( " + (literal(l)) + " ) == ( " + (literal(r)) + " ) ON " + f.name + "\n  Inner Error: " + e);
       }
       if (flv !== frv) {
-        throw Error("Equation Failed:\n\t" + (function_literal(l)) + " IS " + lv + " AND MAPPED TO " + flv + " BUT\n\t" + (function_literal(r)) + " IS " + rv + " AND MAPPED TO " + frv + ".");
+        if ((msg != null) && msg instanceof Function) {
+          return msg(literal(l), literal(r), f.name);
+        } else {
+          throw Error("Equation Does Not Hold:\n  Left Expr  : " + (literal(l)) + "\n  Right Expr : " + (literal(r)) + "\n  Compared On: " + f.name + "\n  Left Value : " + flv + "\n  Right Value: " + frv + "\n");
+        }
       }
     };
   };
-  securely = function(f) {
+  purify = function(f) {
     return function() {
       var args;
       args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
@@ -1655,7 +1696,7 @@ this_module = function() {
       },
       deepcopy: function(obj, depth) {
         if (depth == null) {
-          depth = Infinity;
+          depth = 2e308;
         }
         return cp(obj, depth);
       }
@@ -1726,7 +1767,7 @@ this_module = function() {
     dict: dict,
     copy: copy,
     deepcopy: deepcopy,
-    securely: securely,
+    purify: purify,
     extend: extend,
     update: update,
     overload: overload
@@ -1741,6 +1782,5 @@ module.exports = this_module();
 
 },{"_process":2}]},{},[1])(1)
 });
-
 
 //# sourceMappingURL=global.js.map
